@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Weather.Next</title>
+        <meta name="description" content="Get Your Next Weather Report... TODAY!">
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1">
+
+        <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:800,400,300' rel='stylesheet' type='text/css'>
+		<link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+
+        <link rel="apple-touch-icon" sizes="144x144" href="imgs/touch/apple-touch-icon-144x144-precomposed.png">
+        <link rel="apple-touch-icon" sizes="114x114" href="imgs/touch/apple-touch-icon-114x114-precomposed.png">
+        <link rel="apple-touch-icon" sizes="72x72" href="imgs/touch/apple-touch-icon-72x72-precomposed.png">
+        <link rel="apple-touch-icon" href="imgs/touch/apple-touch-icon-57x57-precomposed.png">
+        <link rel="shortcut icon" href="imgs/touch/apple-touch-icon.png">
+
+		<link rel="apple-touch-startup-image" href="imgs/startup/startup-320x460.png" media="screen and (max-device-width : 320px)">
+		<link rel="apple-touch-startup-image" href="imgs/startup/startup-640x920.png" media="(max-device-width : 480px) and (-webkit-min-device-pixel-ratio : 2)">
+		<link rel="apple-touch-startup-image" href="imgs/startup/startup-640x1096.png" media="(max-device-width : 548px) and (-webkit-min-device-pixel-ratio : 2)">
+
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+        <meta name="apple-mobile-web-app-title" content="Weather.Next">
+
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="api/v1/warmup">
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div id="mainpage" class="page">
+			<div class="header">
+              <div class="leftheaderbutton" id="schedule"><i class="fa fa-calendar"></i></div>
+	          <div class="rightheaderbutton">
+	          	<form target="#" name="zipcodeform" id="zipcodeform">
+	          		<i id="findlocation" class="fa fa-location-arrow"></i><input size="5" class="centertext" type="text" name="zipcode" id="zipcode" />
+	          	</form>
+	          </div>
+	          <div class="title">Weather.Next</div>
+			</div>
+			<div class="content">
+		        <div id="weatherframediv">
+					<!--  iframe class="weatherframe" src="weather?zip=95608"></iframe -->
+				</div>
+			</div>
+        </div>
+        <div id="schedulepage" class="page" style="display: none;">
+			<div class="header">
+	          <div class="leftheaderbutton" id="scheduleback">Back</div>
+	          <div class="title">Weather.Next</div>
+			</div>
+			<div class="content">
+				<table id="scheduletable" class="scheduletable">
+				</table>
+				<div class="centertext">Sending email to: <a href="#" id="recipientemail"></a></div>
+				<!-- div class="centertext">Logout | Change</div -->
+			</div>
+        </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+        <script>window.jQuery || document.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"><\/script>')</script>
+        <script src="js/main.js"></script>
+    </body>
+</html>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<places xmlns="http://where.yahooapis.com/v1/schema.rng" xmlns:yahoo="http://www.yahooapis.com/v1/base.rng" yahoo:start="0" yahoo:count="1" yahoo:total="6">
+   <place yahoo:uri="http://where.yahooapis.com/v1/place/24553258" xml:lang="en-US">
+      <woeid>24553258</woeid>
+      <placeTypeName code="11">Postal Code</placeTypeName>
+      <name>111</name>
+      <country type="Country" code="MX" woeid="23424900">Mexico</country>
+      <admin1 type="Federal District" code="MX-DIF" woeid="2346272">Distrito Federal</admin1>
+      <admin2 type="Municipality" code="" woeid="12599939">Cuauhtemoc</admin2>
+      <admin3 />
+      <locality1 />
+      <locality2 />
+      <postal type="Postal Code" woeid="24553258">111</postal>
+      <centroid>
+         <latitude>19.409040</latitude>
+         <longitude>-99.149773</longitude>
+      </centroid>
+      <boundingBox>
+         <southWest>
+            <latitude>19.399050</latitude>
+            <longitude>-99.183968</longitude>
+         </southWest>
+         <northEast>
+            <latitude>19.464460</latitude>
+            <longitude>-99.121910</longitude>
+         </northEast>
+      </boundingBox>
+      <areaRank>4</areaRank>
+      <popRank>0</popRank>
+      <timezone type="Time Zone" woeid="56043602">America/Mexico_City</timezone>
+   </place>
+</places>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cronentries>
+  <cron>
+    <url>/weather/scheduled</url>
+    <description>Check for scheduled emails</description>
+    <schedule>every 1 hours</schedule>
+    <timezone>America/Los_Angeles</timezone>
+  </cron>
+</cronentries>
