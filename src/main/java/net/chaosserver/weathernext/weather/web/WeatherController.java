@@ -110,11 +110,14 @@ public class WeatherController {
 			HttpServletResponse response,
 			Principal principal) throws IOException {
 		   
+		if(zipcode == null || zipcode.isEmpty()) {
+			throw new IllegalArgumentException("Missing zip URL parameter");
+		}
 		String result = "weather/error";
 		UserService userService = UserServiceFactory.getUserService();
 		
 		if(principal == null) {
-			String thisURL = request.getRequestURI();
+			String thisURL = request.getRequestURL().toString();
 			response.sendRedirect(userService.createLoginURL(thisURL));
 		} else {
 			String htmlString;

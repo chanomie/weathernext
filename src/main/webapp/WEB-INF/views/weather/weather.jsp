@@ -15,51 +15,60 @@
 	    	<c:set var="conditionBackground" value="/imgs/bg/clear.png"/>
 	    	<c:set var="conditionIcon" value="/imgs/icon/clear.png"/>
 	    	<c:set var="backgroundColor" value="#1C5FCE"/>
+	    	<c:set var="unicodeIcon" value="&#9728;"/>
 	    </c:when>
 	    <c:when test="${weatherData.weatherState == 'CLOUDS'}">
 	    	<c:set var="conditionBackground" value="/imgs/bg/clouds.png"/>
 	    	<c:set var="conditionIcon" value="/imgs/icon/clouds.png"/>
 	    	<c:set var="backgroundColor" value="#9EA1A0"/>
+	    	<c:set var="unicodeIcon" value="&#9729;"/>
 	    </c:when>
 	    <c:when test="${weatherData.weatherState == 'RAIN'}">
 	    	<c:set var="conditionBackground" value="/imgs/bg/rain.png"/>
 	    	<c:set var="conditionIcon" value="/imgs/icon/rain.png"/>
 	    	<c:set var="backgroundColor" value="#817d7c"/>
+	    	<c:set var="unicodeIcon" value="&#9748;"/><%-- Umbrella --%>
 	    </c:when>
 	    <c:when test="${weatherData.weatherState == 'THUNDERSTORM'}">
 	    	<c:set var="conditionBackground" value="/imgs/bg/thunderstorm.png"/>
 	    	<c:set var="conditionIcon" value="/imgs/icon/thunderstorm.png"/>
 	    	<c:set var="backgroundColor" value="#4e4d93"/>
+	    	<c:set var="unicodeIcon" value="&#9889;"/>
 	    </c:when>
 	    <c:when test="${weatherData.weatherState == 'DRIZZLE'}">
 	    	<c:set var="conditionBackground" value="/imgs/bg/drizzle.png"/>
 	    	<c:set var="conditionIcon" value="/imgs/icon/drizzle.png"/>
 	    	<c:set var="backgroundColor" value="#96b2b3"/>
+	    	<c:set var="unicodeIcon" value="&#9730;"/>
 	    </c:when>
 	    <c:when test="${weatherData.weatherState == 'SNOW'}">
 	    	<c:set var="conditionBackground" value="/imgs/bg/snow.png"/>
 	    	<c:set var="conditionIcon" value="/imgs/icon/snow.png"/>
 	    	<c:set var="backgroundColor" value="#668aae"/>
+	    	<c:set var="unicodeIcon" value="&x2744;"/>
 	    </c:when>
 	    <c:when test="${weatherData.weatherState == 'ATMOSPHERE'}">
 	    	<c:set var="conditionBackground" value="/imgs/bg/atmosphere.png"/>
 	    	<c:set var="conditionIcon" value="/imgs/icon/atmosphere.png"/>
 	    	<c:set var="backgroundColor" value="#d6d6d6"/>
+	    	<c:set var="unicodeIcon" value="&#9832;"/>
 	    </c:when>
 	    <c:when test="${weatherData.weatherState == 'EXTREME'}">
 	    	<c:set var="conditionBackground" value="/imgs/bg/extreme.png"/>
 	    	<c:set var="conditionIcon" value="/imgs/icon/extreme.png"/>
 	    	<c:set var="backgroundColor" value="#d17576"/>
+	    	<c:set var="unicodeIcon" value="&#127755;"/>
 	    </c:when>
 	    <c:otherwise>
 	    	<c:set var="conditionBackground" value="/imgs/bg/unknown.png"/>
 	    	<c:set var="conditionIcon" value="/imgs/icon/unknown.png"/>
 	    	<c:set var="backgroundColor" value="#1C5FCE"/>
+	    	<c:set var="unicodeIcon" value="&#128163;"/><%-- ??? --%>
 	    </c:otherwise>
 	</c:choose>
 	<!--  height: 920 -->
 	<body bgcolor="<c:out value="${backgroundColor}"/>" style="background-color:<c:out value="${backgroundColor}"/>; margin: 0px; font-family: Arial; color: white; text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5); width: 100%; min-width: 100%">
-		<div style="font-size: 0em; width: 100%; text-shadow:none; color: <c:out value="${backgroundColor}"/>"><c:out value="${weatherData.weatherDescription}"/><c:if test="${not empty weatherData.sunrise}">, Rise <fmt:formatDate pattern="h:mm a" value="${weatherData.sunrise}" /></c:if><c:if test="${not empty weatherData.sunset}">, Set <fmt:formatDate pattern="h:mm a" value="${weatherData.sunset}" /></c:if></div>
+		<div style="font-size: 0em; width: 100%; text-shadow:none; color: <c:out value="${backgroundColor}"/>"><c:out value="${unicodeIcon} " escapeXml="false"/><c:out value="${weatherData.weatherDescription}"/><c:if test="${not empty weatherData.sunrise}">, Sunrise <fmt:formatDate pattern="h:mm a" value="${weatherData.sunrise}" /></c:if><c:if test="${not empty weatherData.sunset}">, Sunset <fmt:formatDate pattern="h:mm a" value="${weatherData.sunset}" /></c:if></div>
 		<table cellspacing="0" cellpadding="0" align="center" background="<c:out value="${prefix}"/><c:out value="${conditionBackground}"/>" style="margin: 0px auto; text-align:center; width: 100%; max-width: 620px;">
 			<tr style="height:20px"><td colspan="2">&nbsp;</td></tr>
 			<tr style="font-size: 2.5em; height: 50px;"><td colspan="2"><c:out value="${weatherData.locationName}"/></td></tr>
