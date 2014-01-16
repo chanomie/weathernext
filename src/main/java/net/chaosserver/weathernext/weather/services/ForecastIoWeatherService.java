@@ -29,8 +29,15 @@ public class ForecastIoWeatherService implements WeatherService {
 	/** Logger. */
 	private final static Logger logger = Logger.getLogger(ForecastIoWeatherService.class.getName()); 
 
+	/** Zip code service. */
 	protected ZipCodeLookup zipCodeLookup;
 
+	/** Attribution String. */
+	String attributionString = "Powered by Forecast";
+
+	/** Attribute URL. */
+	String attributionUrl = "http://forecast.io/";
+	
 	public ForecastIoWeatherService(ZipCodeLookup zipCodeLookup) {
 		this.zipCodeLookup = zipCodeLookup;
 
@@ -99,7 +106,9 @@ public class ForecastIoWeatherService implements WeatherService {
 										(float)high,
 										(float)low,
 										sunrise,
-										sunset);
+										sunset,
+										attributionString,
+										attributionUrl);
 							
 							if(logger.isLoggable(Level.FINEST)) {
 								logger.finest("Parsed iconCode [" + iconCode + "] include resultstate [" + weatherState + "]"

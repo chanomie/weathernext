@@ -72,8 +72,8 @@
 		<table cellspacing="0" cellpadding="0" align="center" background="<c:out value="${prefix}"/><c:out value="${conditionBackground}"/>" style="margin: 0px auto; text-align:center; width: 100%; max-width: 620px;">
 			<tr style="height:20px"><td colspan="2">&nbsp;</td></tr>
 			<tr style="font-size: 2.5em; height: 50px;"><td colspan="2"><c:out value="${weatherData.locationName}"/></td></tr>
-			<tr style="font-size: 1em; height: 20px;"><td colspan="2"><fmt:formatDate pattern="EEEEEE, MMMM dd" 
-            value="${weatherData.day}" /></td></tr>
+			<tr style="font-size: 1em; height: 20px;"><td colspan="2"><span style="color: white; !important; text-decoration: none;"><fmt:formatDate pattern="EEEEEE, MMMM dd" 
+            value="${weatherData.day}" /></span></td></tr>
 			<tr style="font-size: 1em; height: 20px;"><td colspan="2"><c:out value="${weatherData.weatherDescription}"/><img src="<c:out value="${prefix}"/><c:out value="${conditionIcon}"/>" style="vertical-align:middle; padding-left: 5px;" alt="${weatherData.weatherDescription}" height="20" width="20"/></td></tr>
 			<tr style="height: 70px;">
 				<td width="50%" style="font-size: 3em; width: 50%;">&uarr; <fmt:formatNumber type="number" maxFractionDigits="0" value="${weatherData.highTempurature}" />&#176;</td>
@@ -86,7 +86,7 @@
 							<c:when test="${empty weatherData.sunrise}">&nbsp;</c:when>
 							<c:otherwise>
 								<img src="<c:out value="${prefix}"/>/imgs/icon/sunrise.png" style="vertical-align:middle" alt="Sunrise" height="30" width="30"/>
-								<fmt:formatDate pattern="h:mm a" value="${weatherData.sunrise}" />
+								<span style="color: white; !important; text-decoration: none;"><fmt:formatDate pattern="h:mm a" value="${weatherData.sunrise}" /></span>
 							</c:otherwise>
 						</c:choose>
 	            	</td>
@@ -95,7 +95,7 @@
 							<c:when test="${empty weatherData.sunset}">&nbsp;</c:when>
 							<c:otherwise>
 								<img src="<c:out value="${prefix}"/>/imgs/icon/sunset.png" style="vertical-align:middle" alt="Sunset" height="30" width="30"/>
-								<fmt:formatDate pattern="h:mm a" value="${weatherData.sunset}" />
+								<span style="color: white; !important; text-decoration: none;"><fmt:formatDate pattern="h:mm a" value="${weatherData.sunset}" /></span>
 							</c:otherwise>
 						</c:choose>
 					</td>
@@ -135,20 +135,29 @@
 						    </c:otherwise>
 						</c:choose>
 							<tr style="height: 40px;">
-								<td style="font-size: 2em; width: 58%; border-top: dashed 1px black;"><fmt:formatDate pattern="EEEEEE" value="${forecastDay.day}" /></td>
-								<td style="font-size: 2em; width: 16%; border-top: dashed 1px black; text-align: left" align="left"><img src="<c:out value="${prefix}"/><c:out value="${conditionIcon}"/>" style="vertical-align:middle" alt="${forecastDay.weatherDescription}" height="30" width="30"/></td>
-								<td style="font-size: 2em; width: 13%; border-top: dashed 1px black;"><fmt:formatNumber type="number" maxFractionDigits="0" value="${forecastDay.highTempurature}" /></td>
-								<td style="font-size: 2em; width: 13%; color: lightblue; border-top: dashed 1px black;"><fmt:formatNumber type="number" maxFractionDigits="0" value="${forecastDay.lowTempurature}" /></td>
+								<td style="font-size: 2em; width: 58%; border-top: dashed 1px black; text-align: left; padding-left: 5px"><fmt:formatDate pattern="EEEEEE" value="${forecastDay.day}" /></td>
+								<td style="font-size: 2em; width: 11%; border-top: dashed 1px black; text-align: left" align="left"><img src="<c:out value="${prefix}"/><c:out value="${conditionIcon}"/>" style="vertical-align:middle" alt="${forecastDay.weatherDescription}" height="30" width="30"/></td>
+								<td style="font-size: 2em; width: 15%; border-top: dashed 1px black;"><fmt:formatNumber type="number" maxFractionDigits="0" value="${forecastDay.highTempurature}" /></td>
+								<td style="font-size: 2em; width: 15%; color: lightblue; border-top: dashed 1px black;"><fmt:formatNumber type="number" maxFractionDigits="0" value="${forecastDay.lowTempurature}" /></td>
 							</tr>
 						</c:forEach>
 					</table>
 				</td>
 			</tr>
 			<tr style="height: 70px;">
-				<td colspan="2">
-				  <c:if test="${not empty skey}">
-				  <a style="color: black;" href="<c:out value="${prefix}"/>/weather/unsubscribe/<c:out value="${skey}"/>">Unsubscribe</a>
+				<td colspan="2" style="text-align:right; padding-right: 5px;">
+				  <c:if test="${not empty weatherData.attributionString}">
+				  	<c:if test="${not empty weatherData.attributionUrl}">
+				      <a style="color: white; !important;" href="<c:out value="${weatherData.attributionUrl}"/>"></c:if><c:out value="${weatherData.attributionString}"/><c:if test="${not empty weatherData.attributionUrl}"></a>
+				    </c:if>				      
 				  </c:if>
+				  <c:if test="${not empty weatherData.attributionString and not empty skey}">
+				    <br/>
+				  </c:if>
+				  <c:if test="${not empty skey}">
+				    <a style="color: white !important;" href="<c:out value="${prefix}"/>/weather/unsubscribe/<c:out value="${skey}"/>">Unsubscribe</a>
+				  </c:if>
+
 				</td>
 			</tr>
 		</table>

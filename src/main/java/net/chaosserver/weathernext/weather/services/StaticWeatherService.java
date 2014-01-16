@@ -30,7 +30,9 @@ public class StaticWeatherService implements WeatherService {
 				68.0f,
 				36.0f,
 				sunrise,
-				sunset);
+				sunset,
+				"Static Weather Service",
+				null);
 
 		calendar.add(Calendar.DAY_OF_MONTH, 1);
 		weatherData.addForecast(
@@ -42,6 +44,8 @@ public class StaticWeatherService implements WeatherService {
 							66.0f,
 							36.0f,
 							null,
+							null,
+							"Static Weather Service",
 							null
 					)
 				);
@@ -56,6 +60,8 @@ public class StaticWeatherService implements WeatherService {
 							66.0f,
 							36.0f,
 							null,
+							null,
+							"Static Weather Service",
 							null
 					)
 				);
@@ -70,7 +76,10 @@ public class StaticWeatherService implements WeatherService {
 							64.0f,
 							41.0f,
 							null,
+							null,
+							"Static Weather Service",
 							null
+
 					)
 				);
 
@@ -84,7 +93,10 @@ public class StaticWeatherService implements WeatherService {
 							66.0f,
 							37.0f,
 							null,
+							null,
+							"Static Weather Service",
 							null
+
 					)
 				);
 
@@ -98,7 +110,10 @@ public class StaticWeatherService implements WeatherService {
 							66.0f,
 							36.0f,
 							null,
+							null,
+							"Static Weather Service",
 							null
+
 					)
 				);
 

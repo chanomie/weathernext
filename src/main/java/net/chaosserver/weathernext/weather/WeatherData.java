@@ -18,6 +18,8 @@ public class WeatherData implements Comparable<WeatherData>, Serializable {
 	protected float lowTempurature;
 	protected Date sunrise;
 	protected Date sunset;
+	protected String attributionString;
+	protected String attributionUrl;
 	protected SortedSet<WeatherData> forecast;
 	
 	public WeatherData() {
@@ -30,7 +32,9 @@ public class WeatherData implements Comparable<WeatherData>, Serializable {
 				float highTempurature,
 				float lowTempurature,
 				Date sunrise,
-				Date sunset) {
+				Date sunset,
+				String attributionString,
+				String attributionUrl) {
 		
 		this.day = day;
 		setLocationName(locationName);
@@ -40,6 +44,8 @@ public class WeatherData implements Comparable<WeatherData>, Serializable {
 		this.lowTempurature = lowTempurature;
 		this.sunrise = sunrise;
 		this.sunset = sunset;
+		this.attributionString = attributionString;
+		this.attributionUrl = attributionUrl;
 		
 		forecast = new TreeSet<WeatherData>();
 	}
@@ -89,6 +95,14 @@ public class WeatherData implements Comparable<WeatherData>, Serializable {
 		return this.sunset;
 	}
 	
+	public String getAttributionString() {
+		return this.attributionString;
+	}
+	
+	public String getAttributionUrl() {
+		return this.attributionUrl;
+	}
+	
 	public SortedSet<WeatherData> getForecast() {
 		return this.forecast;
 	}
@@ -96,7 +110,7 @@ public class WeatherData implements Comparable<WeatherData>, Serializable {
 	public int compareTo(WeatherData o) {
 		return this.day.compareTo(((WeatherData)o).getDay());
 	}
-	
+
 	/*
 	 * Converts the object into a debug string.
 	 * 
@@ -123,6 +137,10 @@ public class WeatherData implements Comparable<WeatherData>, Serializable {
 		sb.append(this.getSunrise());
 		sb.append(", sunset=");
 		sb.append(this.getSunset());
+		sb.append(", attributionString=");
+		sb.append(this.getAttributionString());
+		sb.append(", attributionUrl=");
+		sb.append(this.getAttributionUrl());
 		sb.append(", forecase=[");
 		if(this.getForecast() != null) {
 			Iterator<WeatherData> weatherDataIterator = getForecast().iterator();

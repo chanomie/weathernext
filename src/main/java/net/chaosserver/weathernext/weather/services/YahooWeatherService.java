@@ -47,6 +47,9 @@ public class YahooWeatherService implements WeatherService {
 	/** Logger. */
 	private final static Logger logger = Logger.getLogger(YahooWeatherService.class.getName()); 
 
+	protected String attributionString = "Yahoo! Weather";
+	protected String attributionUrl = "http://weather.yahoo.com";
+	
 	/**
 	 * Constructor initializes the Document Builder and XPath engine.
 	 */
@@ -111,7 +114,9 @@ public class YahooWeatherService implements WeatherService {
 										(float)high,
 										(float)low,
 										null,
-										null);
+										null,
+										attributionString,
+										attributionUrl);
 							
 							if(logger.isLoggable(Level.FINEST)) {
 								logger.finest("Parsed yahooCodeInt [" + yahooCode + "] include resultstate [" + weatherState + "]"

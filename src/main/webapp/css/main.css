@@ -208,7 +208,13 @@ table.scheduletable td {
 	border: 1px solid red;
 }
 
+a {
+	color: white;
+}
 
+a:visited {
+	color: white;
+}
 
 
 
