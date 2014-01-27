@@ -57,7 +57,16 @@ public class WeatherController {
 		WeatherData weatherData = weatherServiceHelper.getWeatherData(zipcode, timezone);
 		String prefix = getRootUrl(request);
 
+		String description = weatherData.getWeatherDescription();
+		log.fine("Initial weather description [" + description + "]");
+		if(description != null) {
+			description = description.replaceAll("[\\.!]$", "");
+			log.fine("After replace weather description [" + description + "]");
+		}
+		
+		
 		model.addAttribute("weatherData", weatherData);
+		model.addAttribute("weatherDescription", description);
 		model.addAttribute("timezone", timezone);
 		model.addAttribute("prefix", prefix);
 		model.addAttribute("skey", skey);
