@@ -47,8 +47,18 @@ public class WeatherController {
 			@RequestParam(value="zip", required=false) String zipcode,
 			@RequestParam(value="timezone", required=false) String timezoneString,
 			@RequestParam(value="skey", required=false) String skey,
+			@RequestParam(value="emailformat", required=false) String emailformat,
 			HttpServletRequest request, 
 			Model model) {
+
+		Boolean emailformatBoolean = Boolean.FALSE;
+		if(emailformat != null) {
+			emailformatBoolean = Boolean.valueOf(emailformat);
+		}
+		
+		log.fine("/weather URL Inputs zip=[" + zipcode + "], timezone=[" + timezoneString 
+				+ "], skey=[" + skey + "], emailformat=[" + emailformat
+				+ "], emailformatBoolean=[" + emailformatBoolean + "]");
 
 		TimeZone timezone = TimeZone.getTimeZone("America/Los_Angeles");
 		if(timezoneString != null) {
@@ -70,6 +80,7 @@ public class WeatherController {
 		model.addAttribute("timezone", timezone);
 		model.addAttribute("prefix", prefix);
 		model.addAttribute("skey", skey);
+		model.addAttribute("emailformat", emailformatBoolean);
 		
 		if(weatherData != null) {
 			return "weather/weather";

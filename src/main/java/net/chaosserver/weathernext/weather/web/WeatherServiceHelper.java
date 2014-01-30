@@ -109,6 +109,7 @@ public class WeatherServiceHelper {
 		StringBuffer parameters = new StringBuffer();
 		parameters.append("zip=");
 		parameters.append(URLEncoder.encode(zipcode, "UTF-8"));
+		parameters.append("&emailformat=true");
 		if(timezoneString != null) {
 			parameters.append("&timezone=");
 			parameters.append(URLEncoder.encode(timezoneString, "UTF-8"));

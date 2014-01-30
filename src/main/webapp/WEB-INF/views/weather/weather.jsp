@@ -6,6 +6,19 @@
 	<head>
 		<title>Weather.Next</title>
         <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1">
+        <c:if test="${not emailformat}">
+          <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+          <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+          <link rel="stylesheet" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css">
+            <script>
+                $(function() {
+                    $( document ).tooltip();
+                });
+            </script>
+            <style>
+                .ui-tooltip-content { text-shadow: none; }
+            </style>
+        </c:if>
 		<style>
 		  /* table, th, td { border: 1px solid black; } */
 		</style>
@@ -80,9 +93,9 @@
 		<table cellspacing="0" cellpadding="0" align="center" background="<c:out value="${prefix}"/><c:out value="${conditionBackground}"/>" style="margin: 0px auto; text-align:center; width: 100%; max-width: 620px;">
 			<tr style="height:20px"><td colspan="2">&nbsp;</td></tr>
 			<tr style="font-size: 2.5em; height: 50px;"><td colspan="2"><c:out value="${weatherData.locationName}"/></td></tr>
-			<tr style="font-size: 1em; height: 20px;"><td colspan="2"><span style="color: white; !important; text-decoration: none;"><fmt:formatDate pattern="EEEEEE, MMMM dd" 
+			<tr style="font-size: 1em; height: 20px;"><td colspan="2"><span style="color: white !important; text-decoration: none !important;"><fmt:formatDate pattern="EEEEEE, MMMM dd" 
             value="${weatherData.day}" /></span></td></tr>
-			<tr style="font-size: 1em; height: 20px;"><td colspan="2"><c:out value="${weatherData.weatherDescription}"/><img src="<c:out value="${prefix}"/><c:out value="${conditionIcon}"/>" style="vertical-align:middle; padding-left: 5px;" alt="${weatherData.weatherDescription}" height="20" width="20"/></td></tr>
+			<tr style="font-size: 1em; height: 20px;"><td colspan="2"><c:out value="${weatherData.weatherDescription}"/><img src="<c:out value="${prefix}"/><c:out value="${conditionIcon}"/>" style="vertical-align:middle; padding-left: 5px;" alt="${weatherData.weatherDescription}" title="${weatherData.weatherDescription}" height="20" width="20"/></td></tr>
 			<tr style="height: 70px;">
 				<td width="50%" style="font-size: 3em; width: 50%;">&uarr; <fmt:formatNumber type="number" maxFractionDigits="0" value="${weatherData.highTempurature}" />&#176;</td>
 				<td width="50%" style="font-size: 3em; width: 50%; color: lightblue;">&darr; <fmt:formatNumber type="number" maxFractionDigits="0" value="${weatherData.lowTempurature}" />&#176;</td>
@@ -93,8 +106,8 @@
 						<c:choose>
 							<c:when test="${empty weatherData.sunrise}">&nbsp;</c:when>
 							<c:otherwise>
-								<img src="<c:out value="${prefix}"/>/imgs/icon/sunrise.png" style="vertical-align:middle" alt="Sunrise" height="30" width="30"/>
-								<span style="color: white; !important; text-decoration: none;"><fmt:formatDate pattern="h:mm a" value="${weatherData.sunrise}" /></span>
+								<img src="<c:out value="${prefix}"/>/imgs/icon/sunrise.png" style="vertical-align:middle" alt="Sunrise" title="Sunrise" height="30" width="30"/>
+								<span style="color: white !important; text-decoration: none !important;"><fmt:formatDate pattern="h:mm a" value="${weatherData.sunrise}" /></span>
 							</c:otherwise>
 						</c:choose>
 	            	</td>
@@ -102,8 +115,8 @@
 						<c:choose>
 							<c:when test="${empty weatherData.sunset}">&nbsp;</c:when>
 							<c:otherwise>
-								<img src="<c:out value="${prefix}"/>/imgs/icon/sunset.png" style="vertical-align:middle" alt="Sunset" height="30" width="30"/>
-								<span style="color: white; !important; text-decoration: none;"><fmt:formatDate pattern="h:mm a" value="${weatherData.sunset}" /></span>
+								<img src="<c:out value="${prefix}"/>/imgs/icon/sunset.png" style="vertical-align:middle" alt="Sunset" title="Sunset" height="30" width="30"/>
+								<span style="color: white !important; text-decoration: none !important;"><fmt:formatDate pattern="h:mm a" value="${weatherData.sunset}" /></span>
 							</c:otherwise>
 						</c:choose>
 					</td>
@@ -144,7 +157,7 @@
 						</c:choose>
 							<tr style="height: 40px;">
 								<td style="font-size: 2em; width: 58%; border-top: dashed 1px black; text-align: left; padding-left: 5px"><fmt:formatDate pattern="EEEEEE" value="${forecastDay.day}" /></td>
-								<td style="font-size: 2em; width: 11%; border-top: dashed 1px black; text-align: left" align="left"><img src="<c:out value="${prefix}"/><c:out value="${conditionIcon}"/>" style="vertical-align:middle" alt="${forecastDay.weatherDescription}" height="30" width="30"/></td>
+								<td style="font-size: 2em; width: 11%; border-top: dashed 1px black; text-align: left" align="left"><img src="<c:out value="${prefix}"/><c:out value="${conditionIcon}"/>" style="vertical-align:middle" alt="${forecastDay.weatherDescription}" title="${forecastDay.weatherDescription}" height="30" width="30"/></td>
 								<td style="font-size: 2em; width: 15%; border-top: dashed 1px black;"><fmt:formatNumber type="number" maxFractionDigits="0" value="${forecastDay.highTempurature}" /></td>
 								<td style="font-size: 2em; width: 15%; color: lightblue; border-top: dashed 1px black;"><fmt:formatNumber type="number" maxFractionDigits="0" value="${forecastDay.lowTempurature}" /></td>
 							</tr>
@@ -156,7 +169,7 @@
 				<td colspan="2" style="text-align:right; padding-right: 5px;">
 				  <c:if test="${not empty weatherData.attributionString}">
 				  	<c:if test="${not empty weatherData.attributionUrl}">
-				      <a style="color: white; !important;" href="<c:out value="${weatherData.attributionUrl}"/>"></c:if><c:out value="${weatherData.attributionString}"/><c:if test="${not empty weatherData.attributionUrl}"></a>
+				      <a style="color: white !important;" href="<c:out value="${weatherData.attributionUrl}"/>"></c:if><c:out value="${weatherData.attributionString}"/><c:if test="${not empty weatherData.attributionUrl}"></a>
 				    </c:if>				      
 				  </c:if>
 				  <c:if test="${not empty weatherData.attributionString and not empty skey}">
