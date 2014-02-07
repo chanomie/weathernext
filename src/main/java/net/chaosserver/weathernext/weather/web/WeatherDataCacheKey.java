@@ -22,6 +22,10 @@ public class WeatherDataCacheKey implements Serializable {
     }
 
     public boolean equals(Object o) {
+        if(!(o instanceof WeatherDataCacheKey)) {
+            throw new ClassCastException();
+        }
+
         WeatherDataCacheKey compareO = (WeatherDataCacheKey) o;
 
         boolean equals = true;

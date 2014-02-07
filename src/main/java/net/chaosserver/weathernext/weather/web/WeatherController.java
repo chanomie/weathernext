@@ -83,11 +83,14 @@ public class WeatherController {
         model.addAttribute("skey", skey);
         model.addAttribute("emailformat", emailformatBoolean);
 
+        return "weather/weather";
+        /*
         if (weatherData != null) {
             return "weather/weather";
         } else {
             return "weather/error";
         }
+        */
     }
 
     @RequestMapping(value = "/text", method = RequestMethod.GET)
@@ -150,7 +153,7 @@ public class WeatherController {
                 result = null;
                 response.setContentType("text/html");
                 BufferedInputStream reader = new BufferedInputStream(
-                        new ByteArrayInputStream(htmlString.getBytes()));
+                        new ByteArrayInputStream(htmlString.getBytes("UTF-8")));
                 BufferedOutputStream writer = new BufferedOutputStream(
                         response.getOutputStream());
 

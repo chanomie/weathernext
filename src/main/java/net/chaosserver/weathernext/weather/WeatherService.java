@@ -26,7 +26,7 @@ import java.util.TimeZone;
  * 
  * @author jreed
  */
-interface WeatherService {
+public interface WeatherService {
     /**
      * Returns the weather and forecast for the given zipcode with dates
      * localized to the timezone.

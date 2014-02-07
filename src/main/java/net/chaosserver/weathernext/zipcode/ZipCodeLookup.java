@@ -3,6 +3,7 @@ package net.chaosserver.weathernext.zipcode;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,11 +31,15 @@ public class ZipCodeLookup {
         HeaderColumnNameMappingStrategy<LocationData> strat = new HeaderColumnNameMappingStrategy<LocationData>();
         strat.setType(LocationData.class);
         CsvToBean<LocationData> bean = new CsvToBean<LocationData>();
-        Reader zipCodeListReader = new BufferedReader(new InputStreamReader(
-                this.getClass().getResourceAsStream("/zipcodes/zipcodes.csv")));
-        List<LocationData> locationList = bean.parse(strat, zipCodeListReader);
-        for (LocationData locationData : locationList) {
-            zipCodeData.put(locationData.getZipCode(), locationData);
+        try {
+            Reader zipCodeListReader = new BufferedReader(new InputStreamReader(
+                    this.getClass().getResourceAsStream("/zipcodes/zipcodes.csv"), "UTF-8"));
+            List<LocationData> locationList = bean.parse(strat, zipCodeListReader);
+            for (LocationData locationData : locationList) {
+                zipCodeData.put(locationData.getZipCode(), locationData);
+            }
+        } catch (UnsupportedEncodingException e) {
+            logger.log(Level.WARNING, "Failed to open reader with UTF-8", e);
         }
     }
 

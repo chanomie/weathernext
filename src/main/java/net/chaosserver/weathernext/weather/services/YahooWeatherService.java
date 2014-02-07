@@ -33,7 +33,17 @@ import org.xml.sax.SAXException;
  */
 public class YahooWeatherService implements WeatherService {
     /** The Yahoo API key loaded from the context. */
-    protected static String apiKey = System.getenv("yahooweatherkey");
+    static String apiKey = System.getenv("yahooweatherkey");
+
+    static {
+        if (YahooWeatherService.apiKey == null) {
+        	YahooWeatherService.apiKey = System.getProperty("yahooweatherkey");
+            if (YahooWeatherService.apiKey == null) {
+                throw new IllegalStateException(
+                        "Failed to get yahooweatherkey from environment");
+            }
+        }
+    }
 
     /** Simple Date Format. */
     protected SimpleDateFormat yahooDateFormat = new SimpleDateFormat(
@@ -63,14 +73,6 @@ public class YahooWeatherService implements WeatherService {
         } catch (ParserConfigurationException e) {
             logger.log(Level.SEVERE, "Unable to create XML parser", e);
             throw new IllegalStateException("Unable to create XML parser", e);
-        }
-
-        if (apiKey == null) {
-            apiKey = System.getProperty("yahooweatherkey");
-            if (apiKey == null) {
-                throw new IllegalStateException(
-                        "Failed to get yahooweatherkey from environment");
-            }
         }
     }
 

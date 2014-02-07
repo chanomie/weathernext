@@ -32,7 +32,6 @@ import javax.mail.internet.MimeMultipart;
 import net.chaosserver.weathernext.weather.WeatherData;
 import net.chaosserver.weathernext.weather.WeatherService;
 import net.chaosserver.weathernext.weather.services.ForecastIoWeatherService;
-import net.chaosserver.weathernext.weather.services.YahooWeatherService;
 import net.chaosserver.weathernext.zipcode.LocationData;
 import net.chaosserver.weathernext.zipcode.ZipCodeLookup;
 
@@ -181,8 +180,9 @@ public class WeatherServiceHelper {
         }
         cacheWriter.flush();
         cacheWriter.close();
+        reader.close();
 
-        String htmlString = byteArrayStream.toString();
+        String htmlString = byteArrayStream.toString("UTF-8");
         return htmlString;
     }
 }

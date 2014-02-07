@@ -26,7 +26,8 @@ public class CorsFilter extends OncePerRequestFilter {
 
         String origin = request.getHeader("Origin");
         if (origin != null) {
-            response.addHeader("X-Received-Origin", origin);
+            response.addHeader("X-Received-Origin", 
+                    origin.replaceAll("\n", "").replaceAll("\r", ""));
         }
         response.addHeader("Access-Control-Allow-Origin", "*");
         response.addHeader("Access-Control-Allow-Methods",

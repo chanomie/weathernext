@@ -24,7 +24,17 @@ import org.codehaus.jackson.node.ArrayNode;
 
 public class ForecastIoWeatherService implements WeatherService {
     /** The Forecast.io API key loaded from the context. */
-    protected static String apiKey = System.getenv("forecastkey");
+    static String apiKey = System.getenv("forecastkey");
+    
+    static {
+        if (ForecastIoWeatherService.apiKey == null) {
+            ForecastIoWeatherService.apiKey = System.getProperty("forecastkey");
+            if (ForecastIoWeatherService.apiKey == null) {
+                throw new IllegalStateException(
+                        "Failed to get forecastkey from environment");
+            }
+        }
+    }
 
     /** Logger. */
     private final static Logger logger = Logger
@@ -41,15 +51,6 @@ public class ForecastIoWeatherService implements WeatherService {
 
     public ForecastIoWeatherService(ZipCodeLookup zipCodeLookup) {
         this.zipCodeLookup = zipCodeLookup;
-
-        if (apiKey == null) {
-            apiKey = System.getProperty("forecastkey");
-            if (apiKey == null) {
-                throw new IllegalStateException(
-                        "Failed to get forecastkey from environment");
-            }
-        }
-
     }
 
     @Override

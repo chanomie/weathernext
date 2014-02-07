@@ -50,8 +50,8 @@ public class WeatherEmailSchedule implements Serializable {
         this.recipientName = recipientName;
         this.recipientEmail = recipientEmail;
         this.zipcode = zipcode;
-        this.timezone = timezone;
-        this.nextSend = nextSend;
+        this.timezone = timezone != null ? (TimeZone) timezone.clone() : null;
+        this.nextSend = nextSend != null ? (Date) nextSend.clone() : null;
     }
 
     public WeatherEmailSchedule(String ownerId, String recipientName,
@@ -84,7 +84,7 @@ public class WeatherEmailSchedule implements Serializable {
     }
 
     public Date getNextSend() {
-        return this.nextSend;
+        return this.nextSend != null ? (Date)this.nextSend.clone() : null;
     }
 
     public void setKey(long key) {
@@ -106,7 +106,7 @@ public class WeatherEmailSchedule implements Serializable {
 
         this.nextSend = newLastSent.getTime();
 
-        return this.nextSend;
+        return (Date)this.nextSend.clone();
     }
 
     /**

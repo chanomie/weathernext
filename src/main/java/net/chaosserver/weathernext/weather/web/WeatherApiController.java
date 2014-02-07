@@ -200,7 +200,6 @@ public class WeatherApiController {
 
         if (principal == null)
             throw new SecurityException("Requires login");
-        String recipientEmail = userService.getCurrentUser().getEmail();
 
         List<Map<String, String>> weatherScheduleJsonList = new ArrayList<Map<String, String>>();
 
