@@ -16,24 +16,3 @@
  * You should have received a copy of the GNU General Public License
  * along with Weather.Next.  If not, see <http ://www.gnu.org/licenses/>.
  */
-package net.chaosserver.weathernext.weather;
-
-import java.util.TimeZone;
-
-/**
- * Interface for weather services that can return weather and forecast for a
- * particular zip code.
- * 
- * @author jreed
- */
-interface WeatherService {
-    /**
-     * Returns the weather and forecast for the given zipcode with dates
-     * localized to the timezone.
-     * 
-     * @param zipcode zipcode to get weather for
-     * @param timeZone timezone for localization
-     * @return the weather and forecast
-     */
-    public WeatherData getWeather(String zipcode, TimeZone timeZone);
-}

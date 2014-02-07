@@ -21,6 +21,7 @@
         </c:if>
 		<style>
 		  /* table, th, td { border: 1px solid black; } */
+		  .appleWhiteLinks a { color: #FFFFFF !important; text-decoration: none; }
 		</style>
 	</head>
 	<c:choose>
@@ -93,7 +94,7 @@
 		<table cellspacing="0" cellpadding="0" align="center" background="<c:out value="${prefix}"/><c:out value="${conditionBackground}"/>" style="margin: 0px auto; text-align:center; width: 100%; max-width: 620px;">
 			<tr style="height:20px"><td colspan="2">&nbsp;</td></tr>
 			<tr style="font-size: 2.5em; height: 50px;"><td colspan="2"><c:out value="${weatherData.locationName}"/></td></tr>
-			<tr style="font-size: 1em; height: 20px;"><td colspan="2"><span style="color: white !important; text-decoration: none !important;"><fmt:formatDate pattern="EEEEEE, MMMM dd" 
+			<tr style="font-size: 1em; height: 20px;"><td colspan="2"><span class="appleWhiteLinks"><fmt:formatDate pattern="EEEEEE, MMMM dd" 
             value="${weatherData.day}" /></span></td></tr>
 			<tr style="font-size: 1em; height: 20px;"><td colspan="2"><c:out value="${weatherData.weatherDescription}"/><img src="<c:out value="${prefix}"/><c:out value="${conditionIcon}"/>" style="vertical-align:middle; padding-left: 5px;" alt="${weatherData.weatherDescription}" title="${weatherData.weatherDescription}" height="20" width="20"/></td></tr>
 			<tr style="height: 70px;">
@@ -107,7 +108,7 @@
 							<c:when test="${empty weatherData.sunrise}">&nbsp;</c:when>
 							<c:otherwise>
 								<img src="<c:out value="${prefix}"/>/imgs/icon/sunrise.png" style="vertical-align:middle" alt="Sunrise" title="Sunrise" height="30" width="30"/>
-								<span style="color: white !important; text-decoration: none !important;"><fmt:formatDate pattern="h:mm a" value="${weatherData.sunrise}" /></span>
+								<span class="appleWhiteLinks"><fmt:formatDate pattern="h:mm a" value="${weatherData.sunrise}" /></span>
 							</c:otherwise>
 						</c:choose>
 	            	</td>
@@ -116,7 +117,7 @@
 							<c:when test="${empty weatherData.sunset}">&nbsp;</c:when>
 							<c:otherwise>
 								<img src="<c:out value="${prefix}"/>/imgs/icon/sunset.png" style="vertical-align:middle" alt="Sunset" title="Sunset" height="30" width="30"/>
-								<span style="color: white !important; text-decoration: none !important;"><fmt:formatDate pattern="h:mm a" value="${weatherData.sunset}" /></span>
+								<span class="appleWhiteLinks"><fmt:formatDate pattern="h:mm a" value="${weatherData.sunset}" /></span>
 							</c:otherwise>
 						</c:choose>
 					</td>

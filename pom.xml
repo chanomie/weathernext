@@ -48,17 +48,21 @@
 		<artifactId>opencsv</artifactId>
 		<version>2.4-SNAPSHOT</version>
 	</dependency>
-        <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>${jackson.version}</version>
-        </dependency>
-        <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>${jackson-2-version}</version>
-        </dependency>
-
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson-2-version}</version>
+    </dependency>
+    <dependency>
+	  <groupId>org.apache.commons</groupId>
+	  <artifactId>commons-lang3</artifactId>
+	  <version>3.0</version>
+    </dependency>
         <!-- Test Dependencies -->
         <dependency>
             <groupId>junit</groupId>
@@ -156,6 +160,36 @@
 	      </plugin>
         </plugins>
     </build>
+    <reporting>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>2.11</version>
+          <configuration>
+            <configLocation>file://${project.basedir}/checkstyle.xml</configLocation>
+            <headerLocation>file://${project.basedir}/javaheader.txt</headerLocation>
+          </configuration>
+          <reportSets>
+            <reportSet>
+              <reports>
+                <report>checkstyle</report>
+              </reports>
+            </reportSet>
+          </reportSets>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>findbugs-maven-plugin</artifactId>
+          <version>2.5.3</version>
+          <configuration>
+            <xmlOutput>true</xmlOutput>
+            <!-- Optional directory to put findbugs xdoc xml report -->
+            <xmlOutputDirectory>target/site</xmlOutputDirectory>
+          </configuration>
+        </plugin>
+      </plugins>
+    </reporting>
     <repositories>
         <repository>
             <id>in-project</id>

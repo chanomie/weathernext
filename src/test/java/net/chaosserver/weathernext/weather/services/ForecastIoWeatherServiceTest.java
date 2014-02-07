@@ -9,14 +9,15 @@ import net.chaosserver.weathernext.zipcode.ZipCodeLookup;
 import org.junit.Test;
 
 public class ForecastIoWeatherServiceTest {
-	@Test
-	public void textYahooWeatherService() throws Exception {
-		ForecastIoWeatherService forecastIoWeatherService = new ForecastIoWeatherService(
-				new ZipCodeLookup());
+    @Test
+    public void textYahooWeatherService() throws Exception {
+        ForecastIoWeatherService forecastIoWeatherService = new ForecastIoWeatherService(
+                new ZipCodeLookup());
 
-		TimeZone timezone = Calendar.getInstance().getTimeZone();
-		WeatherData weatherData = forecastIoWeatherService.getWeather("95608", timezone);
-		
-		System.out.println("Weather Service: " + weatherData);
-	}
+        TimeZone timezone = Calendar.getInstance().getTimeZone();
+        WeatherData weatherData = forecastIoWeatherService.getWeather("95608",
+                timezone);
+
+        System.out.println("Weather Service: " + weatherData);
+    }
 }
