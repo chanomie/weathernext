@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2013 Jordan Reed 
+ * 
+ * This file is part of Weather.Next.
+ * 
+ * Weather.Next is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * Weather.Next is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with Weather.Next.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package net.chaosserver.weathernext.weather.scheduler;
 
 import java.util.ArrayList;
@@ -14,17 +32,30 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
 import com.google.appengine.api.datastore.Query.FilterOperator;
 
+/**
+ * Helper function the the weather email scheduler. This class provides all the
+ * interaction with the DataStore backend.
+ * 
+ * @author jreed
+ * 
+ */
 public class WeatherEmailScheduleHelper {
-    private static final Logger log = Logger
+    /** The logger. */
+    private static Logger log = Logger
             .getLogger(WeatherEmailScheduleHelper.class.getName());
 
-    DatastoreService datastore;
+    /** Reference to the Google AppEngine Datastore. */
+    protected DatastoreService datastore;
 
+    /**
+     * Constructs the Service Helper and initialized the datastore.
+     */
     public WeatherEmailScheduleHelper() {
         datastore = DatastoreServiceFactory.getDatastoreService();
     }
@@ -115,6 +146,17 @@ public class WeatherEmailScheduleHelper {
         return entity;
     }
 
+    /**
+     * Adds or updates a weather email schedule
+     * 
+     * @param ownerId the user that owns the schedule
+     * @param recipientName the friendly recipient name
+     * @param recipientEmail the recipient email address
+     * @param zipcode the zipcode of the schedule
+     * @param timezone the timezone of the schedule
+     * @param nextSend the next time to send the schedule
+     * @return the newly created schedule object
+     */
     public WeatherEmailSchedule putSchedule(String ownerId,
             String recipientName, String recipientEmail, String zipcode,
             TimeZone timezone, Date nextSend) {
@@ -129,6 +171,12 @@ public class WeatherEmailScheduleHelper {
         return weatherEmailSchedule;
     }
 
+    /**
+     * Adds or updates a weather email schedule
+     * 
+     * @param weatherEmailSchedule the new email schedule
+     * @return the newly created schedule object
+     */
     public long putWeatherEmailSchedule(
             WeatherEmailSchedule weatherEmailSchedule) {
         Entity emailScheduleEntity = getWeatherEmailScheduleEntity(
@@ -158,6 +206,12 @@ public class WeatherEmailScheduleHelper {
         return emailScheduleEntity.getKey().getId();
     }
 
+    /**
+     * Deletes a schedule based on the unique key
+     * 
+     * @param scheduleKey the unique key
+     * @return the schedule that just deleted
+     */
     public WeatherEmailSchedule deleteWeatherEmailSchedule(String scheduleKey) {
         long scheduleKeyId = Long.parseLong(scheduleKey);
 
@@ -178,6 +232,13 @@ public class WeatherEmailScheduleHelper {
         return result;
     }
 
+    /**
+     * Deletes a weather email and makes sure the recipient is the owner.
+     * 
+     * @param recipientEmail recipient email for the schedule
+     * @param scheduleKey the schedule key
+     * @return the schedule that just deleted
+     */
     public WeatherEmailSchedule deleteWeatherEmailSchedule(
             String recipientEmail, String scheduleKey) {
         long scheduleKeyId = Long.parseLong(scheduleKey);
@@ -231,6 +292,12 @@ public class WeatherEmailScheduleHelper {
         return result;
     }
 
+    /**
+     * Deletes all the schedules for a particular recipient
+     * 
+     * @param recipientEmail the recipient email
+     * @return the list of schedules that were deleted
+     */
     public List<WeatherEmailSchedule> deleteWeatherEmailScheduleForRecipient(
             String recipientEmail) {
         List<WeatherEmailSchedule> weatherEmailScheduleList = new ArrayList<WeatherEmailSchedule>();
@@ -251,23 +318,22 @@ public class WeatherEmailScheduleHelper {
         return weatherEmailScheduleList;
     }
 
+    /**
+     * Gets a list of schedules that are ready to be sent based on the current
+     * time.
+     * 
+     * @return the list ready to be sent.
+     */
     public List<WeatherEmailSchedule> getReadyToSend() {
         return getReadyToSend(new Date());
     }
 
-    public List<WeatherEmailSchedule> getAll() {
-        List<WeatherEmailSchedule> weatherEmailScheduleList = new ArrayList<WeatherEmailSchedule>();
-        Query q = new Query("EmailSchedule");
-        List<Entity> results = datastore.prepare(q).asList(
-                FetchOptions.Builder.withDefaults());
-        for (Entity entity : results) {
-            weatherEmailScheduleList
-                    .add(convertEntityToWeatherEmailSchedule(entity));
-        }
-
-        return weatherEmailScheduleList;
-    }
-
+    /**
+     * Gets a list of schedules that are ready to send for a particular date.
+     * 
+     * @param beforeDate the date to find all schedules before
+     * @return the list of schedules that should be sent before the input date
+     */
     public List<WeatherEmailSchedule> getReadyToSend(Date beforeDate) {
         List<WeatherEmailSchedule> weatherEmailScheduleList = new ArrayList<WeatherEmailSchedule>();
 
@@ -286,7 +352,13 @@ public class WeatherEmailScheduleHelper {
         return weatherEmailScheduleList;
     }
 
-    public WeatherEmailSchedule convertEntityToWeatherEmailSchedule(
+    /**
+     * Converts a Google DataStore entity into a WeatherEmailSchedule.
+     * 
+     * @param emailScheduleEntity the entity to convert
+     * @return the schedule
+     */
+    public static WeatherEmailSchedule convertEntityToWeatherEmailSchedule(
             Entity emailScheduleEntity) {
         String timeZoneId = (String) emailScheduleEntity
                 .getProperty("timezone");

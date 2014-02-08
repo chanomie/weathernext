@@ -4,10 +4,15 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
     <version>1.0</version>
-
     <groupId>net.chaosserver.weathernext</groupId>
     <artifactId>weathernext</artifactId>
-
+    
+    <!-- More Project Information -->
+    <name>Weather.Next</name>
+	<description>A simple service to email you a weather forecast each day - with an email that is not 50% ads and not formatted for mobile.</description>
+	<url>https://weathernext.appengine.com</url>
+	<inceptionYear>2013</inceptionYear>
+	
     <properties>
         <appengine.app.version>1</appengine.app.version>
         <appengine.target.version>1.8.8</appengine.target.version>
@@ -197,4 +202,16 @@
             <url>file://${project.basedir}/libs</url>
         </repository>
     </repositories>
+    
+    <licenses>
+      <license>
+        <name>GNU General Public License, Version 3.0</name>
+        <url>http://www.gnu.org/licenses/</url>
+        <distribution>manual</distribution>
+      </license>
+    </licenses>
+    <issueManagement>
+      <system>Bugzilla</system>
+      <url>https://code.google.com/p/weathernext/issues</url>
+    </issueManagement>
 </project>

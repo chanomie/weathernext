@@ -14,7 +14,7 @@
  * GNU General Public License for more details.
  * 
  * You should have received a copy of the GNU General Public License
- * along with Weather.Next.  If not, see <http ://www.gnu.org/licenses/>.
+ * along with Weather.Next.  If not, see <http://www.gnu.org/licenses/>.
  */
 package net.chaosserver.weathernext.weather;
 
@@ -25,8 +25,30 @@ package net.chaosserver.weathernext.weather;
  * 
  */
 public enum WeatherState {
-    CLEAR, CLOUDS, RAIN, THUNDERSTORM, DRIZZLE, SNOW, ATMOSPHERE, EXTREME, UNKNOWN;
+    /** Clear Skies. */
+    CLEAR,
+    /** Clouds. */
+    CLOUDS,
+    /** Rain. */
+    RAIN,
+    /** Thunderstorm. */
+    THUNDERSTORM,
+    /** Drizzle / Light Rain. */
+    DRIZZLE,
+    /** Snow */
+    SNOW,
+    /** Fog, Mist, Smoke, etc. */
+    ATMOSPHERE,
+    /** Hurricane, Tornado, Volcano. */
+    EXTREME,
+    /** Who knows? Not us. Probably error. */
+    UNKNOWN;
 
+    /**
+     * Returns a string representation.
+     * 
+     * @return String representation
+     */
     public String toString() {
         switch (this) {
             case CLEAR:
