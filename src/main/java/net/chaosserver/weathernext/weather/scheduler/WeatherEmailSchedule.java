@@ -180,7 +180,7 @@ public class WeatherEmailSchedule implements Serializable {
     }
 
     /**
-     * Updates the nextSendDate to be 1-day in the future
+     * Updates the nextSendDate to be 1-day in the future.
      * 
      * @return the updated value of nextSendDate
      */

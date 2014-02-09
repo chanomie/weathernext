@@ -26,9 +26,23 @@ import net.chaosserver.weathernext.weather.WeatherData;
 import net.chaosserver.weathernext.weather.WeatherService;
 import net.chaosserver.weathernext.weather.WeatherState;
 
+/**
+ * Good for testing, StaticWeatherService just provides static values
+ * so that you can test.
+ * 
+ * @author jreed
+ *
+ */
 public class StaticWeatherService implements WeatherService {
+    /**
+     * Gets the weather for the zipcode by randomly generating weather.
+     * 
+     * @param zipcode a zipcode
+     * @param timeZone the timezone to return from
+     * @return a random block of weatherdata
+     */
     public WeatherData getWeather(String zipcode, TimeZone timeZone) {
-
+    	// CHECKSTYLE:OFF
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.add(Calendar.DAY_OF_MONTH, 1);
         Date tomorrow = calendar.getTime();
@@ -73,7 +87,7 @@ public class StaticWeatherService implements WeatherService {
                 null, "Static Weather Service", null
 
         ));
-
+        // CHECKSTYLE:ON
         return weatherData;
     }
 

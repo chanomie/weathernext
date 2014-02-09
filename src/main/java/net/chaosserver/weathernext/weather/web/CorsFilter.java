@@ -34,9 +34,19 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author jreed
  */
 public class CorsFilter extends OncePerRequestFilter {
+    /** Logger. */
     private static final Logger log = Logger.getLogger(CorsFilter.class
             .getName());
 
+    /**
+     * Applies the filter by adding the CORS header.
+     * 
+     * @param request the http request
+     * @param response the http response
+     * @param filterChain the filter chain to apply to
+     * @throws ServletException exception working with servlet objects
+     * @throws IOException exception writing to the reponse
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request,
             HttpServletResponse response, FilterChain filterChain)

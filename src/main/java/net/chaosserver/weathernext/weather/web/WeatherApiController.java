@@ -67,8 +67,8 @@ public class WeatherApiController {
      * @return
      */
     @RequestMapping(value = "/v1/warmup", produces = "text/css")
-    public @ResponseBody
-    String warmpup(HttpServletResponse response) {
+    @ResponseBody
+    public String warmpup(HttpServletResponse response) {
         response.setContentType("text/css");
         response.setHeader("Cache-Control",
                 "no-cache, no-store, must-revalidate"); // HTTP 1.1.
@@ -120,8 +120,9 @@ public class WeatherApiController {
     public @ResponseBody
     Map<String, String> getGoogleStatus(Principal principal) {
 
-        if (principal == null)
+        if (principal == null) {
             throw new SecurityException("Requires user principal");
+        }
         Map<String, String> responseJson = new HashMap<String, String>();
 
         responseJson.put("recipientEmail", userService.getCurrentUser()
@@ -142,14 +143,16 @@ public class WeatherApiController {
      * @return
      */
     @RequestMapping(value = "/schedule", method = RequestMethod.GET)
-    public @ResponseBody
-    List<Map<String, String>> getSchedules(
+    @ResponseBody
+    public List<Map<String, String>> getSchedules(
             @RequestParam(value = "zip", required = false) String zipcode,
             Principal principal) {
 
-        if (principal == null)
+        if (principal == null) {
             throw new SecurityException("Requires user principal");
-        List<Map<String, String>> weatherScheduleJsonList = new ArrayList<Map<String, String>>();
+        }
+        List<Map<String, String>> weatherScheduleJsonList = 
+                new ArrayList<Map<String, String>>();
 
         String recipientEmail = userService.getCurrentUser().getEmail();
         String ownerId = userService.getCurrentUser().getUserId();
@@ -158,15 +161,19 @@ public class WeatherApiController {
                 + "], ownerId [" + ownerId + "]");
 
         if (recipientEmail != null && zipcode != null) {
-            WeatherEmailSchedule weatherEmailSchedule = weatherEmailScheduleHelper
+            WeatherEmailSchedule weatherEmailSchedule =
+                    weatherEmailScheduleHelper
                     .getWeatherEmailSchedule(ownerId, recipientEmail, zipcode);
 
             weatherScheduleJsonList.add(weatherEmailSchedule.toMap());
         } else if (recipientEmail != null) {
-            List<WeatherEmailSchedule> weatherScheduleList = weatherEmailScheduleHelper
+            List<WeatherEmailSchedule> weatherScheduleList = 
+                    weatherEmailScheduleHelper
                     .getWeatherEmailSchedule(ownerId, recipientEmail);
 
-            for (WeatherEmailSchedule weatherEmailSchedule : weatherScheduleList) {
+            for (WeatherEmailSchedule weatherEmailSchedule : 
+                    weatherScheduleList) {
+
                 weatherScheduleJsonList.add(weatherEmailSchedule.toMap());
             }
         }
@@ -175,23 +182,29 @@ public class WeatherApiController {
     }
 
     /**
-     * Assigns a schedule to a specific owner
+     * Assigns a schedule to a specific owner.  This must be called
+     * by an admin user.
      * 
      * @param scheduleKey the schedule key to assign
      * @param ownerId the owner id to assign it to
+     * @param principal the owner of the schedule to assign to an owner
      * @return the schedule that was deleted.
      */
     @RequestMapping(value = "/schedule/assign", method = { RequestMethod.GET })
-    public @ResponseBody
-    Map<String, String> assignSchedule(
-            @RequestParam(value = "scheduleKey", required = false) String scheduleKey,
-            @RequestParam(value = "ownerId", required = false) String ownerId,
+    @ResponseBody
+    public Map<String, String> assignSchedule(
+            @RequestParam(value = "scheduleKey", required = false)
+                String scheduleKey,
+            @RequestParam(value = "ownerId", required = false)
+                String ownerId,
             Principal principal) {
 
-        if (principal == null)
+        if (principal == null) {
             throw new SecurityException("Requires login");
-        if (!userService.isUserAdmin())
+        }
+        if (!userService.isUserAdmin()) {
             throw new SecurityException("Requires admin user");
+        }
 
         WeatherEmailSchedule weatherEmailSchedule = weatherEmailScheduleHelper
                 .assignSchedule(scheduleKey, ownerId);
@@ -204,26 +217,32 @@ public class WeatherApiController {
     }
 
     /**
-     * Deletes a schedule from the system
+     * Deletes a schedule from the system. This is deprecated as you should
+     * use the DELETE method for this to work.
      * 
-     * @param scheduleKey
+     * @param scheduleKey the key to delete
+     * @param principal the user who should own the schedule
      * @return the schedule that was deleted.
      * @deprecated for compatibility it is better to use the DELETE method
      */
     @RequestMapping(value = "/schedule/delete", method = { RequestMethod.POST })
-    public @ResponseBody
-    List<Map<String, String>> deleteSchedulePost(
-            @RequestParam(value = "scheduleKey", required = false) String scheduleKey,
+    @ResponseBody
+    public List<Map<String, String>> deleteSchedulePost(
+            @RequestParam(value = "scheduleKey", required = false)
+                String scheduleKey,
             Principal principal) {
 
-        if (principal == null)
+        if (principal == null) {
             throw new SecurityException("Requires login");
+        }
 
-        List<Map<String, String>> weatherScheduleJsonList = new ArrayList<Map<String, String>>();
+        List<Map<String, String>> weatherScheduleJsonList =
+                new ArrayList<Map<String, String>>();
 
         if (scheduleKey != null) {
-            WeatherEmailSchedule weatherEmailSchedule = weatherEmailScheduleHelper
-                    .deleteWeatherEmailSchedule(scheduleKey);
+            WeatherEmailSchedule weatherEmailSchedule = 
+                    weatherEmailScheduleHelper.
+                        deleteWeatherEmailSchedule(scheduleKey);
 
             if (weatherEmailSchedule != null) {
                 weatherScheduleJsonList.add(weatherEmailSchedule.toMap());
@@ -233,13 +252,23 @@ public class WeatherApiController {
         return weatherScheduleJsonList;
     }
 
-    @RequestMapping(value = "/schedule/{scheduleKey}", method = RequestMethod.DELETE)
-    public @ResponseBody
-    Map<String, String> deleteSchedule(@PathVariable String scheduleKey,
+    /**
+     * Deletes a schedule out of the system for the provided schedule key
+     * if it belongs to the current user.
+     * 
+     * @param scheduleKey the schedule key to delete
+     * @param principal the current user
+     * @return JSON of the schedule that has been deleted.
+     */
+    @RequestMapping(value = "/schedule/{scheduleKey}", 
+            method = RequestMethod.DELETE)
+    @ResponseBody
+    public Map<String, String> deleteSchedule(@PathVariable String scheduleKey,
             Principal principal) {
 
-        if (principal == null)
+        if (principal == null) {
             throw new SecurityException("Requires login");
+        }
         String recipientEmail = userService.getCurrentUser().getEmail();
 
         WeatherEmailSchedule weatherEmailSchedule = weatherEmailScheduleHelper
@@ -248,16 +277,28 @@ public class WeatherApiController {
         return weatherEmailSchedule.toMap();
     }
 
+    /**
+     * API to add a new schedule into the system.  Requires a login.
+     * 
+     * @param zipcode the zidcode of the new schedule
+     * @param timezoneString the timezone of the user requesting the mails
+     * @param sendTimeString the sendtimestring is a time as epoch time
+     * @param principal the principal of the user
+     * @return JSON of the new weather schedule
+     */
     @RequestMapping(value = "/schedule", method = { RequestMethod.POST })
-    public @ResponseBody
-    Map<String, String> addSchedule(
+    @ResponseBody
+    public Map<String, String> addSchedule(
             @RequestParam(value = "zip", required = false) String zipcode,
-            @RequestParam(value = "timezone", required = false) String timezoneString,
-            @RequestParam(value = "sendTime", required = false) String sendTimeString,
+            @RequestParam(value = "timezone", required = false)
+                String timezoneString,
+            @RequestParam(value = "sendTime", required = false)
+                String sendTimeString,
             Principal principal) {
 
-        if (principal == null)
+        if (principal == null) {
             throw new SecurityException("Requires login");
+        }
         String ownerId = userService.getCurrentUser().getUserId();
         String recipientEmail = userService.getCurrentUser().getEmail();
         String recipientName = userService.getCurrentUser().getNickname();

@@ -32,7 +32,6 @@ import com.google.appengine.api.datastore.EntityNotFoundException;
 import com.google.appengine.api.datastore.FetchOptions;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.CompositeFilterOperator;
 import com.google.appengine.api.datastore.Query.Filter;
@@ -88,7 +87,8 @@ public class WeatherEmailScheduleHelper {
     public List<WeatherEmailSchedule> getWeatherEmailSchedule(String ownerId,
             String recipientEmail) {
 
-        List<WeatherEmailSchedule> weatherEmailScheduleList = new ArrayList<WeatherEmailSchedule>();
+        List<WeatherEmailSchedule> weatherEmailScheduleList = 
+                new ArrayList<WeatherEmailSchedule>();
 
         Filter filter = new Query.CompositeFilter(CompositeFilterOperator.OR,
                 Arrays.<Filter> asList(
@@ -118,25 +118,25 @@ public class WeatherEmailScheduleHelper {
      * @param recipientEmail the recipient email of the list
      * @param zipcode the zipcode of the schedule
      * 
-     * @throws PreparedQuery.TooManyResultsException if more than one result is
-     *             returned - which should not be allowed.
      * @return the matching entity or NULL of a entity cannot be found.
      */
     protected Entity getWeatherEmailScheduleEntity(String ownerId,
             String recipientEmail, String zipcode) {
 
+        List<Filter> filterList = Arrays.<Filter> asList(
+                new Query.FilterPredicate(
+                        "recipientEmail",
+                        FilterOperator.EQUAL,
+                        recipientEmail),
+                new Query.FilterPredicate("ownerId",
+                        FilterOperator.EQUAL, ownerId));
+
         Query q = new Query("EmailSchedule");
         Filter filter = new Query.CompositeFilter(
                 CompositeFilterOperator.AND,
                 Arrays.<Filter> asList(
-                        new Query.CompositeFilter(CompositeFilterOperator.OR,
-                                Arrays.<Filter> asList(
-                                        new Query.FilterPredicate(
-                                                "recipientEmail",
-                                                FilterOperator.EQUAL,
-                                                recipientEmail),
-                                        new Query.FilterPredicate("ownerId",
-                                                FilterOperator.EQUAL, ownerId))),
+                        new Query.CompositeFilter(
+                                CompositeFilterOperator.OR, filterList),
                         new Query.FilterPredicate("zipcode",
                                 FilterOperator.EQUAL, zipcode)));
 
@@ -147,7 +147,7 @@ public class WeatherEmailScheduleHelper {
     }
 
     /**
-     * Adds or updates a weather email schedule
+     * Adds or updates a weather email schedule.
      * 
      * @param ownerId the user that owns the schedule
      * @param recipientName the friendly recipient name
@@ -172,7 +172,7 @@ public class WeatherEmailScheduleHelper {
     }
 
     /**
-     * Adds or updates a weather email schedule
+     * Adds or updates a weather email schedule.
      * 
      * @param weatherEmailSchedule the new email schedule
      * @return the newly created schedule object
@@ -207,7 +207,7 @@ public class WeatherEmailScheduleHelper {
     }
 
     /**
-     * Deletes a schedule based on the unique key
+     * Deletes a schedule based on the unique key.
      * 
      * @param scheduleKey the unique key
      * @return the schedule that just deleted
@@ -293,14 +293,15 @@ public class WeatherEmailScheduleHelper {
     }
 
     /**
-     * Deletes all the schedules for a particular recipient
+     * Deletes all the schedules for a particular recipient.
      * 
      * @param recipientEmail the recipient email
      * @return the list of schedules that were deleted
      */
     public List<WeatherEmailSchedule> deleteWeatherEmailScheduleForRecipient(
             String recipientEmail) {
-        List<WeatherEmailSchedule> weatherEmailScheduleList = new ArrayList<WeatherEmailSchedule>();
+        List<WeatherEmailSchedule> weatherEmailScheduleList = 
+                new ArrayList<WeatherEmailSchedule>();
 
         Filter filter = new Query.FilterPredicate("recipientEmail",
                 FilterOperator.EQUAL, recipientEmail);
@@ -319,7 +320,7 @@ public class WeatherEmailScheduleHelper {
     }
 
     /**
-     * Gets a list of schedules that are ready to be sent based on the current
+     * Gets a list of schedules that are ready to be sent based on the current.
      * time.
      * 
      * @return the list ready to be sent.
@@ -335,7 +336,8 @@ public class WeatherEmailScheduleHelper {
      * @return the list of schedules that should be sent before the input date
      */
     public List<WeatherEmailSchedule> getReadyToSend(Date beforeDate) {
-        List<WeatherEmailSchedule> weatherEmailScheduleList = new ArrayList<WeatherEmailSchedule>();
+        List<WeatherEmailSchedule> weatherEmailScheduleList =
+                new ArrayList<WeatherEmailSchedule>();
 
         Filter filter = new Query.FilterPredicate("nextSend",
                 Query.FilterOperator.LESS_THAN_OR_EQUAL, beforeDate);

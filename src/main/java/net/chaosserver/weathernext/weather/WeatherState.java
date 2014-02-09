@@ -35,7 +35,7 @@ public enum WeatherState {
     THUNDERSTORM,
     /** Drizzle / Light Rain. */
     DRIZZLE,
-    /** Snow */
+    /** Snow. */
     SNOW,
     /** Fog, Mist, Smoke, etc. */
     ATMOSPHERE,

@@ -51,7 +51,7 @@ import org.xml.sax.SAXException;
  */
 public class YahooWeatherService implements WeatherService {
     /** The Yahoo API key loaded from the context. */
-    static String apiKey = System.getenv("yahooweatherkey");
+    private static String apiKey = System.getenv("yahooweatherkey");
 
     static {
         if (YahooWeatherService.apiKey == null) {
@@ -74,10 +74,13 @@ public class YahooWeatherService implements WeatherService {
     protected XPath xpath;
 
     /** Logger. */
-    private final static Logger logger = Logger
+    private static final Logger logger = Logger
             .getLogger(YahooWeatherService.class.getName());
 
+    /** Attribute of the service provider. */
     protected String attributionString = "Yahoo! Weather";
+    
+    /** URL for attribution. */
     protected String attributionUrl = "http://weather.yahoo.com";
 
     /**
@@ -108,8 +111,9 @@ public class YahooWeatherService implements WeatherService {
 
         if (woeId != null) {
             try {
-                String yahooURLString = "http://weather.yahooapis.com/forecastrss?w="
-                        + woeId;
+                String yahooURLString = "http://weather.yahooapis.com/"
+                    + "forecastrss?w="
+                    + woeId;
                 URL yahooURL = new URL(yahooURLString);
                 Document doc = dBuilder.parse(new BufferedInputStream(yahooURL
                         .openStream()));
@@ -138,7 +142,9 @@ public class YahooWeatherService implements WeatherService {
                                 doc, XPathConstants.NUMBER);
 
                         Date date = yahooDateFormat.parse(dateString);
-                        WeatherState weatherState = parseWeatherState(yahooCode);
+
+                        WeatherState weatherState =
+                                parseWeatherState(yahooCode);
 
                         if (date.after(todayEnd)) {
                             WeatherData weatherData = new WeatherData(date,
@@ -174,6 +180,13 @@ public class YahooWeatherService implements WeatherService {
         return result;
     }
 
+    /**
+     * Parses the yahoo weather code and converts it into a WeatherState
+     * object.
+     * 
+     * @param yahooCode the yahoo weather code.
+     * @return the state object
+     */
     private WeatherState parseWeatherState(double yahooCode) {
         int yahooCodeInt = (int) yahooCode;
         WeatherState resultState = WeatherState.UNKNOWN;
@@ -256,6 +269,12 @@ public class YahooWeatherService implements WeatherService {
         return resultState;
     }
 
+    /**
+     * Gets the World Object ID (woid) for a particular zipcode.
+     * 
+     * @param zipcode the zipcode
+     * @return the woid
+     */
     protected String getWoeId(String zipcode) {
         String woeId = null;
 
@@ -307,7 +326,8 @@ public class YahooWeatherService implements WeatherService {
  * Clear. High: 63 Low: 35<br /> Thu - Sunny. High: 66 Low: 34<br /> Fri -
  * Sunny. High: 62 Low: 38<br /> Sat - AM Clouds/PM Sun. High: 68 Low: 36<br />
  * Sun - Sunny. High: 65 Low: 33<br /> <br /> <a href=
- * "http://us.rd.yahoo.com/dailynews/rss/weather/Carmichael__CA/*http://weather.yahoo.com/forecast/USCA0185_f.html"
+ * "http://us.rd.yahoo.com/dailynews/rss/weather/Carmichael__CA/
+ * *http://weather.yahoo.com/forecast/USCA0185_f.html"
  * >Full Forecast at Yahoo! Weather</a><BR/><BR/> (provided by <a
  * href="http://www.weather.com" >The Weather Channel</a>)<br/>]]></description>
  * <yweather:forecast day="Wed" date="25 Dec 2013" low="35" high="63"

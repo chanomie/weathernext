@@ -40,9 +40,17 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 
+/**
+ * Uses Forecast.io as the data service for getting weather information.
+ * 
+ * @author jreed
+ */
 public class ForecastIoWeatherService implements WeatherService {
     /** The Forecast.io API key loaded from the context. */
-    static String apiKey = System.getenv("forecastkey");
+    private static String apiKey = System.getenv("forecastkey");
+
+    /** Number of millis in seconds. */
+    private static final int MILLIS_TO_SECS = 1000;
 
     static {
         if (ForecastIoWeatherService.apiKey == null) {
@@ -55,18 +63,22 @@ public class ForecastIoWeatherService implements WeatherService {
     }
 
     /** Logger. */
-    private final static Logger logger = Logger
+    private static final Logger logger = Logger
             .getLogger(ForecastIoWeatherService.class.getName());
 
     /** Zip code service. */
     protected ZipCodeLookup zipCodeLookup;
 
     /** Attribution String. */
-    String attributionString = "Powered by Forecast";
+    protected String attributionString = "Powered by Forecast";
 
     /** Attribute URL. */
-    String attributionUrl = "http://forecast.io/";
+    protected String attributionUrl = "http://forecast.io/";
 
+    /** Creates the services and provides a zipcode lookup class.
+     * 
+     * @param zipCodeLookup instance of zipcode lookup
+     */
     public ForecastIoWeatherService(ZipCodeLookup zipCodeLookup) {
         this.zipCodeLookup = zipCodeLookup;
     }
@@ -101,8 +113,9 @@ public class ForecastIoWeatherService implements WeatherService {
 
                 JsonNode resultNode = actualObj.path("daily").path("data");
                 if (resultNode instanceof ArrayNode) {
-                    Iterator<JsonNode> dataNodesIterator = ((ArrayNode) resultNode)
-                            .getElements();
+                    Iterator<JsonNode> dataNodesIterator = 
+                            ((ArrayNode) resultNode).getElements();
+
                     while (dataNodesIterator.hasNext()) {
                         JsonNode dataNode = dataNodesIterator.next();
 
@@ -120,9 +133,9 @@ public class ForecastIoWeatherService implements WeatherService {
                         long sunsetLong = dataNode.path("sunsetTime")
                                 .getLongValue();
 
-                        Date date = new Date(dateLong * 1000);
-                        Date sunrise = new Date(sunriseLong * 1000);
-                        Date sunset = new Date(sunsetLong * 1000);
+                        Date date = new Date(dateLong * MILLIS_TO_SECS);
+                        Date sunrise = new Date(sunriseLong * MILLIS_TO_SECS);
+                        Date sunset = new Date(sunsetLong * MILLIS_TO_SECS);
                         WeatherState weatherState = parseWeatherState(iconCode);
 
                         if (date.after(todayEnd)) {
@@ -157,6 +170,13 @@ public class ForecastIoWeatherService implements WeatherService {
         return result;
     }
 
+    /**
+     * Parses the iconCode returned from the API can converts it into
+     * the WeatherState enumeration.
+     * 
+     * @param iconCode the icon for forecast
+     * @return the weatherstate
+     */
     private WeatherState parseWeatherState(String iconCode) {
         WeatherState resultState = WeatherState.UNKNOWN;
         if ("clear-day".equals(iconCode) || "clear-night".equals(iconCode)

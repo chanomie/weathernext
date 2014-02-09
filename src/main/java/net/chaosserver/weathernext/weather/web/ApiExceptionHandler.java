@@ -34,13 +34,23 @@ import org.springframework.web.servlet.view.json.MappingJacksonJsonView;
  * and respond with a JSON error message.
  * 
  * @author jreed
- * 
  */
 @Component("ExceptionResolver")
 public class ApiExceptionHandler implements HandlerExceptionResolver {
+    /** Logger. */
     private static final Logger log = Logger
             .getLogger(ApiExceptionHandler.class.getName());
 
+    /**
+     * Resolves an exception by converting it into HashMap and returning
+     * it to Jackson to convert it to a JSON object.
+     * 
+     * @param request the request object
+     * @param response the reponse object
+     * @param handler the exception handler
+     * @param e the exception being handled
+     * @return the object to render as a MappingJacksonJsonView
+     */
     public ModelAndView resolveException(HttpServletRequest request,
             HttpServletResponse response, Object handler, Exception e) {
 
@@ -51,11 +61,11 @@ public class ApiExceptionHandler implements HandlerExceptionResolver {
 
         log.log(Level.WARNING, "Caught Exception: " + e, e);
         if (e instanceof SecurityException) {
-            response.setStatus(403);
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         } else if (e instanceof IllegalArgumentException) {
-            response.setStatus(400);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         } else {
-            response.setStatus(500);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
         return mav;
     }
