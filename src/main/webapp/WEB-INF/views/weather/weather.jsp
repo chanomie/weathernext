@@ -59,7 +59,7 @@
 	    	<c:set var="conditionBackground" value="/imgs/bg/snow.png"/>
 	    	<c:set var="conditionIcon" value="/imgs/icon/snow.png"/>
 	    	<c:set var="backgroundColor" value="#668aae"/>
-	    	<c:set var="unicodeIcon" value="&x2744;"/>
+	    	<c:set var="unicodeIcon" value="&#9730;"/>
 	    </c:when>
 	    <c:when test="${weatherData.weatherState == 'ATMOSPHERE'}">
 	    	<c:set var="conditionBackground" value="/imgs/bg/atmosphere.png"/>
@@ -90,7 +90,7 @@
     </c:choose>	
 	<!--  height: 920 -->
 	<body bgcolor="<c:out value="${backgroundColor}"/>" style="background-color:<c:out value="${backgroundColor}"/>; margin: 0px; font-family: Arial; color: white; text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5); width: 100%; min-width: 100%">
-		<div style="font-size: 0em; width: 100%; text-shadow:none; color: <c:out value="${backgroundColor}"/>"><c:out value="${unicodeIcon} " escapeXml="false"/><c:out value="${weatherDescription}"/><c:out value="${sunSchedule}"/></div>
+		<div style="font-size: 0em; width: 100%; text-shadow:none; color: <c:out value="${backgroundColor}"/>"><c:out value="${weatherDescription}"/><c:out value="${sunSchedule}"/></div>
 		<table cellspacing="0" cellpadding="0" align="center" background="<c:out value="${prefix}"/><c:out value="${conditionBackground}"/>" style="margin: 0px auto; text-align:center; width: 100%; max-width: 620px;">
 			<tr style="height:20px"><td colspan="2">&nbsp;</td></tr>
 			<tr style="font-size: 2.5em; height: 50px;"><td colspan="2"><a style="color: #FFFFFF !important; text-decoration: none;" href="darksky://<c:out value="${zipcode}"/>"><c:out value="${weatherData.locationName}"/></a></td></tr>

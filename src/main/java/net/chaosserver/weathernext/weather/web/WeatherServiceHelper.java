@@ -145,13 +145,43 @@ public class WeatherServiceHelper {
         String textString = getUrlAsString(webPrefix + "/weather/text?"
                 + parameters.toString());
 
-        Message msg = new MimeMessage(session);
+        MimeMessage msg = new MimeMessage(session);
         msg.setFrom(new InternetAddress(
                 "weathernext@weathernext.appspotmail.com", "Weather.Next"));
         msg.addRecipient(Message.RecipientType.TO, new InternetAddress(
                 recipientEmail, recipientName));
 
         StringBuffer subject = new StringBuffer();
+        String weatherStateIcon = "\uD83D\uDCA3 ";
+        switch (weatherData.getWeatherState()) {
+            case CLEAR:
+                weatherStateIcon = "\u2600 "; // 9728
+                break;
+            case CLOUDS:
+                weatherStateIcon = "\u2601 "; // 9729
+                break;
+            case RAIN:
+                weatherStateIcon = "\u2614 "; // 9748
+                break;
+            case THUNDERSTORM:
+                weatherStateIcon = "\u26A1 "; // 9889
+                break;
+            case DRIZZLE:
+                weatherStateIcon = "\u2602 "; // 9730
+                break;
+            case SNOW:
+                weatherStateIcon = "\u2603 "; // 9731
+                break;
+            case ATMOSPHERE:
+                weatherStateIcon = "\u2668 "; // 9832
+                break;
+            case EXTREME:
+                weatherStateIcon = "\uD83C\uDF0B "; // 127755
+                break;
+            default:
+                weatherStateIcon = "\uD83D\uDCA3 "; // 128163
+                break;
+        }
         subject.append(weatherData.getLocationName());
         subject.append(" ");
         subject.append(simpleDateFormat.format(weatherData.getDay()));
@@ -159,7 +189,7 @@ public class WeatherServiceHelper {
         subject.append(Math.round(weatherData.getHighTempurature()));
         subject.append(", L");
         subject.append(Math.round(weatherData.getLowTempurature()));
-        msg.setSubject(subject.toString());
+        msg.setSubject(weatherStateIcon + subject.toString(), "UTF-8");
         Multipart mp = new MimeMultipart();
 
         MimeBodyPart bodyPart = new MimeBodyPart();
