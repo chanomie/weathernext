@@ -45,13 +45,30 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
+/**
+ * Controller for all of the APIs used by the weather service. Authenticated
+ * API's require a Pricipal object.
+ * 
+ * @author jreed
+ * 
+ */
 @Controller
 @RequestMapping(value = "/api")
 public class WeatherApiController {
+    /** Logger. */
     private static final Logger log = Logger
             .getLogger(WeatherApiController.class.getName());
 
+    /**
+     * Instance of the Google App Engine user service factory.
+     */
     protected UserService userService = UserServiceFactory.getUserService();
+
+    /**
+     * The Email Schedule Helper is an autowired singleton object that holds all
+     * the Google Storage services objects and caches used by the API
+     * controller.
+     */
 
     @Autowired
     private WeatherEmailScheduleHelper weatherEmailScheduleHelper;
@@ -64,7 +81,9 @@ public class WeatherApiController {
      * and mitigate this problem the warmup API is called directly to by the
      * HTML on load.
      * 
-     * @return
+     * @param response the response object. Needed to write back the caching
+     *            headers.
+     * @return returns an empty CSS file.
      */
     @RequestMapping(value = "/v1/warmup", produces = "text/css")
     @ResponseBody
@@ -89,8 +108,8 @@ public class WeatherApiController {
      *         login/logout URL
      */
     @RequestMapping(value = "/v1/google/status")
-    public @ResponseBody
-    Map<String, String> getGoogleStatus(
+    @ResponseBody
+    public Map<String, String> getGoogleStatus(
             HttpServletRequest request,
             Principal principal,
             @RequestParam(value = "returnPath", required = false) String returnPath) {
@@ -114,11 +133,14 @@ public class WeatherApiController {
     }
 
     /**
-     * Gets your Google User Id
+     * Gets your Google User Id.
+     * 
+     * @param principal the authenticated user to grab the ID for
+     * @return the google user identifier
      */
     @RequestMapping(value = "/ownerId")
-    public @ResponseBody
-    Map<String, String> getGoogleStatus(Principal principal) {
+    @ResponseBody
+    public Map<String, String> getGoogleStatus(Principal principal) {
 
         if (principal == null) {
             throw new SecurityException("Requires user principal");
@@ -128,8 +150,8 @@ public class WeatherApiController {
         responseJson.put("recipientEmail", userService.getCurrentUser()
                 .getEmail());
         responseJson.put("ownerId", userService.getCurrentUser().getUserId());
-        responseJson
-                .put("nickname", userService.getCurrentUser().getNickname());
+        responseJson.put("nickname", userService.getCurrentUser()
+                .getNickname());
 
         return responseJson;
     }
@@ -138,9 +160,9 @@ public class WeatherApiController {
      * Gets a list of all schedules currently stored in the system. By default
      * it only lists schedules that are going to send.
      * 
-     * @param showall (default: false) should it show all schedules including
-     *            ones that aren't ready
-     * @return
+     * @param zipcode the zipcode to get schedules for with this principal
+     * @param principal the authenticated caller
+     * @return the list of schedules for this user. Returns as JSON.
      */
     @RequestMapping(value = "/schedule", method = RequestMethod.GET)
     @ResponseBody
@@ -151,8 +173,7 @@ public class WeatherApiController {
         if (principal == null) {
             throw new SecurityException("Requires user principal");
         }
-        List<Map<String, String>> weatherScheduleJsonList = 
-                new ArrayList<Map<String, String>>();
+        List<Map<String, String>> weatherScheduleJsonList = new ArrayList<Map<String, String>>();
 
         String recipientEmail = userService.getCurrentUser().getEmail();
         String ownerId = userService.getCurrentUser().getUserId();
@@ -161,18 +182,15 @@ public class WeatherApiController {
                 + "], ownerId [" + ownerId + "]");
 
         if (recipientEmail != null && zipcode != null) {
-            WeatherEmailSchedule weatherEmailSchedule =
-                    weatherEmailScheduleHelper
+            WeatherEmailSchedule weatherEmailSchedule = weatherEmailScheduleHelper
                     .getWeatherEmailSchedule(ownerId, recipientEmail, zipcode);
 
             weatherScheduleJsonList.add(weatherEmailSchedule.toMap());
         } else if (recipientEmail != null) {
-            List<WeatherEmailSchedule> weatherScheduleList = 
-                    weatherEmailScheduleHelper
+            List<WeatherEmailSchedule> weatherScheduleList = weatherEmailScheduleHelper
                     .getWeatherEmailSchedule(ownerId, recipientEmail);
 
-            for (WeatherEmailSchedule weatherEmailSchedule : 
-                    weatherScheduleList) {
+            for (WeatherEmailSchedule weatherEmailSchedule : weatherScheduleList) {
 
                 weatherScheduleJsonList.add(weatherEmailSchedule.toMap());
             }
@@ -182,8 +200,8 @@ public class WeatherApiController {
     }
 
     /**
-     * Assigns a schedule to a specific owner.  This must be called
-     * by an admin user.
+     * Assigns a schedule to a specific owner. This must be called by an admin
+     * user.
      * 
      * @param scheduleKey the schedule key to assign
      * @param ownerId the owner id to assign it to
@@ -193,10 +211,8 @@ public class WeatherApiController {
     @RequestMapping(value = "/schedule/assign", method = { RequestMethod.GET })
     @ResponseBody
     public Map<String, String> assignSchedule(
-            @RequestParam(value = "scheduleKey", required = false)
-                String scheduleKey,
-            @RequestParam(value = "ownerId", required = false)
-                String ownerId,
+            @RequestParam(value = "scheduleKey", required = false) String scheduleKey,
+            @RequestParam(value = "ownerId", required = false) String ownerId,
             Principal principal) {
 
         if (principal == null) {
@@ -217,8 +233,8 @@ public class WeatherApiController {
     }
 
     /**
-     * Deletes a schedule from the system. This is deprecated as you should
-     * use the DELETE method for this to work.
+     * Deletes a schedule from the system. This is deprecated as you should use
+     * the DELETE method for this to work.
      * 
      * @param scheduleKey the key to delete
      * @param principal the user who should own the schedule
@@ -228,21 +244,18 @@ public class WeatherApiController {
     @RequestMapping(value = "/schedule/delete", method = { RequestMethod.POST })
     @ResponseBody
     public List<Map<String, String>> deleteSchedulePost(
-            @RequestParam(value = "scheduleKey", required = false)
-                String scheduleKey,
+            @RequestParam(value = "scheduleKey", required = false) String scheduleKey,
             Principal principal) {
 
         if (principal == null) {
             throw new SecurityException("Requires login");
         }
 
-        List<Map<String, String>> weatherScheduleJsonList =
-                new ArrayList<Map<String, String>>();
+        List<Map<String, String>> weatherScheduleJsonList = new ArrayList<Map<String, String>>();
 
         if (scheduleKey != null) {
-            WeatherEmailSchedule weatherEmailSchedule = 
-                    weatherEmailScheduleHelper.
-                        deleteWeatherEmailSchedule(scheduleKey);
+            WeatherEmailSchedule weatherEmailSchedule = weatherEmailScheduleHelper
+                    .deleteWeatherEmailSchedule(scheduleKey);
 
             if (weatherEmailSchedule != null) {
                 weatherScheduleJsonList.add(weatherEmailSchedule.toMap());
@@ -253,18 +266,17 @@ public class WeatherApiController {
     }
 
     /**
-     * Deletes a schedule out of the system for the provided schedule key
-     * if it belongs to the current user.
+     * Deletes a schedule out of the system for the provided schedule key if it
+     * belongs to the current user.
      * 
      * @param scheduleKey the schedule key to delete
      * @param principal the current user
      * @return JSON of the schedule that has been deleted.
      */
-    @RequestMapping(value = "/schedule/{scheduleKey}", 
-            method = RequestMethod.DELETE)
+    @RequestMapping(value = "/schedule/{scheduleKey}", method = RequestMethod.DELETE)
     @ResponseBody
-    public Map<String, String> deleteSchedule(@PathVariable String scheduleKey,
-            Principal principal) {
+    public Map<String, String> deleteSchedule(
+            @PathVariable String scheduleKey, Principal principal) {
 
         if (principal == null) {
             throw new SecurityException("Requires login");
@@ -278,7 +290,7 @@ public class WeatherApiController {
     }
 
     /**
-     * API to add a new schedule into the system.  Requires a login.
+     * API to add a new schedule into the system. Requires a login.
      * 
      * @param zipcode the zidcode of the new schedule
      * @param timezoneString the timezone of the user requesting the mails
@@ -290,10 +302,8 @@ public class WeatherApiController {
     @ResponseBody
     public Map<String, String> addSchedule(
             @RequestParam(value = "zip", required = false) String zipcode,
-            @RequestParam(value = "timezone", required = false)
-                String timezoneString,
-            @RequestParam(value = "sendTime", required = false)
-                String sendTimeString,
+            @RequestParam(value = "timezone", required = false) String timezoneString,
+            @RequestParam(value = "sendTime", required = false) String sendTimeString,
             Principal principal) {
 
         if (principal == null) {

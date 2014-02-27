@@ -49,18 +49,51 @@ import org.springframework.web.bind.annotation.RequestParam;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
+/**
+ * Weather Controller manages all the JSP pages that are used to interact with
+ * the user on the website.
+ * 
+ * @author jreed
+ * 
+ */
 @Controller
 @RequestMapping(value = "/weather")
 public class WeatherController {
-    private static final Logger log = Logger.getLogger(WeatherController.class
-            .getName());
+    /** The logger. */
+    private static final Logger log = Logger
+            .getLogger(WeatherController.class.getName());
 
+    /** Buffer length for stream copies. */
+    private static final int BUFFER_LENGTH = 1024;
+
+    /**
+     * The Weather Service Schedule Helper is an autowired singleton object that
+     * holds all the weather services objects and caches used by the API
+     * controller.
+     */
     @Autowired
     private WeatherServiceHelper weatherServiceHelper;
 
+    /**
+     * The Email Schedule Helper is an autowired singleton object that holds all
+     * the Google Storage services objects and caches used by the API
+     * controller.
+     */
     @Autowired
     private WeatherEmailScheduleHelper weatherEmailScheduleHelper;
 
+    /**
+     * Creates a JSP representation of the weather result.
+     * 
+     * @param zipcode zipcode for the weather.
+     * @param timezoneString timezone of the recipient
+     * @param skey the subscription key if an unsubscribe link is required
+     * @param emailformat true/false to indicate if it should be formatted for
+     *            email
+     * @param request request object
+     * @param model the MVC model
+     * @return SpringMVC location of the JSP
+     */
     @RequestMapping(method = RequestMethod.GET)
     public String get(
             @RequestParam(value = "zip", required = false) String zipcode,
@@ -76,22 +109,23 @@ public class WeatherController {
 
         log.fine("/weather URL Inputs zip=[" + zipcode + "], timezone=["
                 + timezoneString + "], skey=[" + skey + "], emailformat=["
-                + emailformat + "], emailformatBoolean=[" + emailformatBoolean
-                + "]");
+                + emailformat + "], emailformatBoolean=["
+                + emailformatBoolean + "]");
 
         TimeZone timezone = TimeZone.getTimeZone("America/Los_Angeles");
         if (timezoneString != null) {
             timezone = TimeZone.getTimeZone(timezoneString);
         }
-        WeatherData weatherData = weatherServiceHelper.getWeatherData(zipcode,
-                timezone);
+        WeatherData weatherData = weatherServiceHelper.getWeatherData(
+                zipcode, timezone);
         String prefix = getRootUrl(request);
 
         String description = weatherData.getWeatherDescription();
         log.fine("Initial weather description [" + description + "]");
         if (description != null) {
             description = description.replaceAll("[\\.!]$", "");
-            log.fine("After replace weather description [" + description + "]");
+            log.fine("After replace weather description [" + description
+                    + "]");
         }
 
         model.addAttribute("weatherData", weatherData);
@@ -109,6 +143,16 @@ public class WeatherController {
          */
     }
 
+    /**
+     * Creates a text representation of the weather result.
+     * 
+     * @param zipcode zipcode for the weather.
+     * @param timezoneString timezone of the recipient
+     * @param request request object
+     * @param response response object
+     * @param model the MVC model
+     * @return SpringMVC location of the JSP
+     */
     @RequestMapping(value = "/text", method = RequestMethod.GET)
     public String getText(
             @RequestParam(value = "zip", required = false) String zipcode,
@@ -120,8 +164,8 @@ public class WeatherController {
         if (timezoneString != null) {
             timezone = TimeZone.getTimeZone(timezoneString);
         }
-        WeatherData weatherData = weatherServiceHelper.getWeatherData(zipcode,
-                timezone);
+        WeatherData weatherData = weatherServiceHelper.getWeatherData(
+                zipcode, timezone);
         response.setContentType("text/plain");
         model.addAttribute("weatherData", weatherData);
         model.addAttribute("timezone", timezone);
@@ -129,6 +173,14 @@ public class WeatherController {
         return "weather/text";
     }
 
+    /**
+     * Unsubscribe page - this will trigger the unsubscription and then return a
+     * confirmation page.
+     * 
+     * @param scheduleKey the unsubscription key
+     * @param model the MVC model
+     * @return the result page
+     */
     @RequestMapping(value = "/unsubscribe/{scheduleKey}", method = RequestMethod.GET)
     public String unsubscribe(@PathVariable String scheduleKey, Model model) {
 
@@ -139,13 +191,26 @@ public class WeatherController {
         return ("weather/unsubscribed");
     }
 
+    /**
+     * Generates an email message to be sent given the parameters passed in.
+     * 
+     * @param zipcode zipcode to get weather for and send the mail.
+     * @param timezoneString the string indicating the timezone of the recipient
+     * @param skey the subscription key if there is one so that the user can
+     *            unsubscribe
+     * @param request http request
+     * @param response http response
+     * @param principal the recipient of the mail
+     * @return SpringMVC mapping to the JSP to show the mail sent
+     * @throws IOException
+     */
     @RequestMapping(value = "/email", method = RequestMethod.GET)
     public String email(
             @RequestParam(value = "zip", required = false) String zipcode,
             @RequestParam(value = "timezone", required = false) String timezoneString,
             @RequestParam(value = "skey", required = false) String skey,
             HttpServletRequest request, HttpServletResponse response,
-            Principal principal) throws IOException {
+            Principal principal) {
 
         if (zipcode == null || zipcode.isEmpty()) {
             throw new IllegalArgumentException("Missing zip URL parameter");
@@ -155,7 +220,11 @@ public class WeatherController {
 
         if (principal == null) {
             String thisURL = request.getRequestURL().toString();
-            response.sendRedirect(userService.createLoginURL(thisURL));
+            try {
+                response.sendRedirect(userService.createLoginURL(thisURL));
+            } catch (IOException e) {
+                log.log(Level.WARNING, "error sending redirect", e);
+            }
         } else {
             String htmlString;
             try {
@@ -173,7 +242,7 @@ public class WeatherController {
                 BufferedOutputStream writer = new BufferedOutputStream(
                         response.getOutputStream());
 
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[BUFFER_LENGTH];
                 int len;
                 while ((len = reader.read(buffer)) != -1) {
                     writer.write(buffer, 0, len);
@@ -189,10 +258,22 @@ public class WeatherController {
         return result;
     }
 
+    /**
+     * Triggers all the scheduled email in the system. It will loop through all
+     * scheduled emails that have a SendOn date before the current time. Then it
+     * will send the email for it which updates the SendOn date to the current
+     * time.
+     * 
+     * This is restricted in web.xml to only be callable by an admin user and is
+     * intended to only be called by the cron service.
+     * 
+     * @param request the http request
+     * @param principal the admin user
+     * @return returns a SpringMVC mapping to an error page or null
+     */
     @RequestMapping(value = "/scheduled", method = RequestMethod.GET)
     public String scheduledemail(HttpServletRequest request,
-            HttpServletResponse response, Principal principal)
-            throws IOException {
+            Principal principal) {
 
         String result = "weather/error";
 
@@ -203,12 +284,12 @@ public class WeatherController {
                     .getReadyToSend();
 
             for (WeatherEmailSchedule weatherEmailSchedule : weatherEmailScheduleList) {
-                weatherServiceHelper
-                        .sendMessage(weatherEmailSchedule.getRecipientName(),
-                                weatherEmailSchedule.getRecipientEmail(),
-                                prefix, weatherEmailSchedule.getZipcode(),
-                                weatherEmailSchedule.getTimezone().getID(),
-                                String.valueOf(weatherEmailSchedule.getKey()));
+                weatherServiceHelper.sendMessage(
+                        weatherEmailSchedule.getRecipientName(),
+                        weatherEmailSchedule.getRecipientEmail(), prefix,
+                        weatherEmailSchedule.getZipcode(),
+                        weatherEmailSchedule.getTimezone().getID(),
+                        String.valueOf(weatherEmailSchedule.getKey()));
 
                 weatherEmailSchedule.sendNow();
                 weatherEmailScheduleHelper
@@ -224,6 +305,22 @@ public class WeatherController {
         return result;
     }
 
+    /**
+     * Gets the Root URL out of the request object. This is required for being
+     * able to provide absolute links to the images required in the emails.
+     * 
+     * <ul>
+     * <li>http://weathernext.appspot.com/weather ==
+     * http://weathernext.appspot.com</li>
+     * <li>https://weathernext.appspot.com/weather ==
+     * https://weathernext.appspot.com</li>
+     * <li>https://weathernext.appspot.com/weather/mail ==
+     * https://weathernext.appspot.com</li>
+     * </ul>
+     * 
+     * @param request the request to extract the prefix from
+     * @return the prefix from the request object
+     */
     public static String getRootUrl(HttpServletRequest request) {
         String prefix = null;
 

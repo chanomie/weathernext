@@ -1,11 +1,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %><%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %><%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <c:out value="${weatherData.locationName}"/>
+<fmt:formatDate pattern="EEEEEE, MMM dd, yyyy" value="${weatherData.day}" />
 <c:out value="${weatherData.weatherDescription}"/>
-High <fmt:formatNumber type="number" maxFractionDigits="0" value="${weatherData.highTempurature}" />, Low <fmt:formatNumber type="number" maxFractionDigits="0" value="${weatherData.lowTempurature}" />
-<fmt:formatDate pattern="EEEEEE, MM dd, yyyy" value="${weatherData.day}" />
+High <fmt:formatNumber type="number" maxFractionDigits="0" value="${weatherData.highTempurature}" />, Low <fmt:formatNumber type="number" maxFractionDigits="0" value="${weatherData.lowTempurature}" /><c:if test="${not empty weatherData.moonPhase}">
+<c:choose><c:when test="${weatherData.moonPhase == 'FULL'}">Full Moon</c:when><c:when test="${weatherData.moonPhase == 'WAXING_GIBBOUS'}">Waxing Gibbous</c:when><c:when test="${weatherData.moonPhase == 'FIRST_QUARTER'}">First Quarter</c:when><c:when test="${weatherData.moonPhase == 'WAXING_CRESCENT'}">Waxing Crescent</c:when><c:when test="${weatherData.moonPhase == 'NEW'}">New Moon</c:when><c:when test="${weatherData.moonPhase == 'WANING_CRESCENT'}">Waning Crescent</c:when><c:when test="${weatherData.moonPhase == 'THIRD_QUARTER'}">Third Quarter</c:when><c:when test="${weatherData.moonPhase == 'WANING_GIBBOUS'}">Waning Gibbous</c:when></c:choose></c:if>
 =======================
 <c:forEach var="forecastDay" items='${weatherData.forecast}'><fmt:formatDate pattern="EEEEEE, MMM dd, yyyy" value="${forecastDay.day}" />
 <c:out value="${forecastDay.weatherDescription}" />
-High <fmt:formatNumber type="number" maxFractionDigits="0" value="${forecastDay.highTempurature}" />, Low <fmt:formatNumber type="number" maxFractionDigits="0" value="${forecastDay.lowTempurature}" />
+High <fmt:formatNumber type="number" maxFractionDigits="0" value="${forecastDay.highTempurature}" />, Low <fmt:formatNumber type="number" maxFractionDigits="0" value="${forecastDay.lowTempurature}" /><c:if test="${not empty forecastDay.moonPhase}">
+<c:choose><c:when test="${forecastDay.moonPhase == 'FULL'}">Full Moon</c:when><c:when test="${forecastDay.moonPhase == 'WAXING_GIBBOUS'}">Waxing Gibbous</c:when><c:when test="${forecastDay.moonPhase == 'FIRST_QUARTER'}">First Quarter</c:when><c:when test="${forecastDay.moonPhase == 'WAXING_CRESCENT'}">Waxing Crescent</c:when><c:when test="${forecastDay.moonPhase == 'NEW'}">New Moon</c:when><c:when test="${forecastDay.moonPhase == 'WANING_CRESCENT'}">Waning Crescent</c:when><c:when test="${forecastDay.moonPhase == 'THIRD_QUARTER'}">Third Quarter</c:when><c:when test="${forecastDay.moonPhase == 'WANING_GIBBOUS'}">Waning Gibbous</c:when></c:choose></c:if>
 =======================
 </c:forEach>

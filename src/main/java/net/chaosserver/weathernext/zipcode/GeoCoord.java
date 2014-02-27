@@ -24,17 +24,17 @@ package net.chaosserver.weathernext.zipcode;
  * @author jreed
  */
 public class GeoCoord {
+    /** The latitude. */
     protected float longitude;
-    protected float latitude;
 
-    public GeoCoord() {
-    }
+    /** The latitude. */
+    protected float latitude;
 
     /**
      * Converts strings into the proper formats.
      * 
-     * @param longitude
-     * @param latitude
+     * @param longitude the value of longitude
+     * @param latitude the value of latitude
      * @throws NumberFormatException if a non-numberic string is supplied
      */
     public GeoCoord(String longitude, String latitude)
@@ -42,27 +42,89 @@ public class GeoCoord {
         this(Float.parseFloat(longitude), Float.parseFloat(latitude));
     }
 
+    /**
+     * Constructs a new object using the given longitude and lattidue.
+     * 
+     * @param longitude the value of longitude
+     * @param latitude the value of latitude
+     */
     public GeoCoord(float longitude, float latitude) {
         setLongitude(longitude);
         setLatitude(latitude);
     }
 
+    /**
+     * Sets the longitude.
+     * 
+     * @param longitude the new value
+     */
     public void setLongitude(float longitude) {
         this.longitude = longitude;
     }
 
+    /**
+     * Gets the longitude.
+     * 
+     * @return the longitude
+     */
     public float getLongitude() {
         return this.longitude;
     }
 
+    /**
+     * Sets the latitude.
+     * 
+     * @param latitude the new value
+     */
     public void setLatitude(float latitude) {
         this.latitude = latitude;
     }
 
+    /**
+     * Returns the latitude.
+     * 
+     * @return latitude
+     */
     public float getLatitude() {
         return this.latitude;
     }
 
+    /**
+     * Checks if two objects are equal.
+     * 
+     * @param o object to compare to
+     * @return if objects are equal
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object o) {
+        boolean result = false;
+        if (o instanceof GeoCoord) {
+            GeoCoord geoCoord2 = (GeoCoord) o;
+            if (this.getLatitude() == geoCoord2.getLatitude()
+                    && this.getLongitude() == geoCoord2.getLatitude()) {
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns a hashcode for the geocoordinates.
+     * 
+     * @return a hashcode
+     */
+    public int hashCode() {
+        String hashcode = String.valueOf(this.getLatitude())
+                + String.valueOf(this.getLongitude());
+
+        return hashcode.hashCode();
+    }
+
+    /**
+     * Generates a debug string version of this object.
+     * 
+     * @return debug string
+     */
     public String toString() {
         StringBuffer result = new StringBuffer();
         result.append(this.getClass().getName());

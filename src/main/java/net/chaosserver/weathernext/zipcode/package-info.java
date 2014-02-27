@@ -18,6 +18,6 @@
  */
 
 /**
- * Contains the classes used to manage the web application.
+ * Contains lookup objects for Zipcode, Location, etc.
  */
-package net.chaosserver.weathernext.weather.web;
+package net.chaosserver.weathernext.zipcode;

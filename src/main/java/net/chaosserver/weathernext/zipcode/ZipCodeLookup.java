@@ -41,18 +41,32 @@ import au.com.bytecode.opencsv.bean.HeaderColumnNameMappingStrategy;
  * 
  */
 public class ZipCodeLookup {
-    Map<String, LocationData> zipCodeData = new HashMap<String, LocationData>();
+    /** The logger. */
     private final static Logger logger = Logger.getLogger(ZipCodeLookup.class
             .getName());
 
+    /**
+     * This holds the zipCodeData lookup and is loaded during the objects
+     * construction.
+     */
+    protected Map<String, LocationData> zipCodeData = new HashMap<String, LocationData>();
+
+    /**
+     * Constructs the nw zipcode object. This will load data out of a file into
+     * an internal lookup. This object is designed to be held as a singleton or
+     * other cached object.
+     */
     public ZipCodeLookup() {
         HeaderColumnNameMappingStrategy<LocationData> strat = new HeaderColumnNameMappingStrategy<LocationData>();
         strat.setType(LocationData.class);
         CsvToBean<LocationData> bean = new CsvToBean<LocationData>();
         try {
-            Reader zipCodeListReader = new BufferedReader(new InputStreamReader(
-                    this.getClass().getResourceAsStream("/zipcodes/zipcodes.csv"), "UTF-8"));
-            List<LocationData> locationList = bean.parse(strat, zipCodeListReader);
+            Reader zipCodeListReader = new BufferedReader(
+                    new InputStreamReader(this.getClass()
+                            .getResourceAsStream("/zipcodes/zipcodes.csv"),
+                            "UTF-8"));
+            List<LocationData> locationList = bean.parse(strat,
+                    zipCodeListReader);
             for (LocationData locationData : locationList) {
                 zipCodeData.put(locationData.getZipCode(), locationData);
             }
@@ -61,10 +75,23 @@ public class ZipCodeLookup {
         }
     }
 
-    public LocationData getLocationDate(String zipcode) {
+    /**
+     * Gets the location data for a specific zipcode.
+     * 
+     * @param zipcode the zipcode to grab
+     * @return location data for that zipcode.
+     */
+    public LocationData getLocationData(String zipcode) {
         return zipCodeData.get(zipcode);
     }
 
+    /**
+     * Given a zipcode, gets back the GeoCoordinates assocaited with it from the
+     * lookup.
+     * 
+     * @param zipcode the zip to lookup
+     * @return the resulting geocoordinates
+     */
     public GeoCoord getGeoCoord(String zipcode) {
         GeoCoord result = null;
         LocationData locationData = zipCodeData.get(zipcode);
@@ -73,10 +100,9 @@ public class ZipCodeLookup {
                 result = new GeoCoord(locationData.getLongitude(),
                         locationData.getLatitude());
             } catch (NumberFormatException e) {
-                logger.log(
-                        Level.WARNING,
-                        "Failed to parse coordinates for zip [" + zipcode + "]",
-                        e);
+                logger.log(Level.WARNING,
+                        "Failed to parse coordinates for zip [" + zipcode
+                                + "]", e);
                 // Couldn't make it.
             }
         }

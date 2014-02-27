@@ -22,16 +22,17 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import net.chaosserver.weathernext.weather.MoonPhase;
 import net.chaosserver.weathernext.weather.WeatherData;
 import net.chaosserver.weathernext.weather.WeatherService;
 import net.chaosserver.weathernext.weather.WeatherState;
 
 /**
- * Good for testing, StaticWeatherService just provides static values
- * so that you can test.
+ * Good for testing, StaticWeatherService just provides static values so that
+ * you can test.
  * 
  * @author jreed
- *
+ * 
  */
 public class StaticWeatherService implements WeatherService {
     /**
@@ -42,7 +43,7 @@ public class StaticWeatherService implements WeatherService {
      * @return a random block of weatherdata
      */
     public WeatherData getWeather(String zipcode, TimeZone timeZone) {
-    	// CHECKSTYLE:OFF
+        // CHECKSTYLE:OFF
         Calendar calendar = Calendar.getInstance(timeZone);
         calendar.add(Calendar.DAY_OF_MONTH, 1);
         Date tomorrow = calendar.getTime();
@@ -54,39 +55,34 @@ public class StaticWeatherService implements WeatherService {
         Date sunset = calendar.getTime();
 
         WeatherData weatherData = new WeatherData(tomorrow, "Carmichael",
-                WeatherState.CLEAR, "Mostly Sunny", 68.0f, 36.0f, sunrise,
-                sunset, "Static Weather Service", null);
+                WeatherState.CLEAR, MoonPhase.FULL, "Mostly Sunny", 68.0f,
+                36.0f, sunrise, sunset, "Static Weather Service", null);
 
         calendar.add(Calendar.DAY_OF_MONTH, 1);
         weatherData.addForecast(new WeatherData(calendar.getTime(),
-                "Carmichael", WeatherState.CLEAR, "Sunny", 66.0f, 36.0f, null,
-                null, "Static Weather Service", null));
+                "Carmichael", WeatherState.CLEAR, MoonPhase.FULL, "Sunny",
+                66.0f, 36.0f, null, null, "Static Weather Service", null));
 
         calendar.add(Calendar.DAY_OF_MONTH, 1);
         weatherData.addForecast(new WeatherData(calendar.getTime(),
-                "Carmichael", WeatherState.CLEAR, "Sunny", 66.0f, 36.0f, null,
-                null, "Static Weather Service", null));
+                "Carmichael", WeatherState.CLEAR, MoonPhase.FULL, "Sunny",
+                66.0f, 36.0f, null, null, "Static Weather Service", null));
 
         calendar.add(Calendar.DAY_OF_MONTH, 1);
         weatherData.addForecast(new WeatherData(calendar.getTime(),
-                "Carmichael", WeatherState.CLOUDS, "Mostly Cloudy", 64.0f,
-                41.0f, null, null, "Static Weather Service", null
-
-        ));
+                "Carmichael", WeatherState.CLEAR, MoonPhase.FULL, "Sunny",
+                66.0f, 36.0f, null, null, "Static Weather Service", null));
 
         calendar.add(Calendar.DAY_OF_MONTH, 1);
         weatherData.addForecast(new WeatherData(calendar.getTime(),
-                "Carmichael", WeatherState.CLOUDS, "Cloudy", 66.0f, 37.0f,
-                null, null, "Static Weather Service", null
-
-        ));
+                "Carmichael", WeatherState.CLEAR, MoonPhase.FULL, "Sunny",
+                66.0f, 36.0f, null, null, "Static Weather Service", null));
 
         calendar.add(Calendar.DAY_OF_MONTH, 1);
         weatherData.addForecast(new WeatherData(calendar.getTime(),
-                "Carmichael", WeatherState.CLEAR, "Sunny", 66.0f, 36.0f, null,
-                null, "Static Weather Service", null
+                "Carmichael", WeatherState.CLEAR, MoonPhase.FULL, "Sunny",
+                66.0f, 36.0f, null, null, "Static Weather Service", null));
 
-        ));
         // CHECKSTYLE:ON
         return weatherData;
     }

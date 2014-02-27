@@ -39,25 +39,6 @@
       <distribution>manual</distribution>
     </license>
   </licenses>
-  <developers>
-    <developer>
-      <id>jordan.reed</id>
-      <name>Jordan</name>
-      <url>https://plus.google.com/u/0/+JordanReed</url>
-      <organization>Chaos Corporation</organization>
-      <roles>
-        <role>architect</role>
-        <role>developer</role>
-      </roles>
-      <timezone>-7</timezone>
-    </developer>
-  </developers>
-  <scm>
-    <connection>scm:git:https://code.google.com/p/weathernext/</connection>
-    <developerConnection>scm:git:https://code.google.com/p/weathernext/</developerConnection>
-    <tag>HEAD</tag>
-    <url>http://https://code.google.com/p/weathernext/source/browse/</url>
-  </scm>
   <issueManagement>
     <system>Bugzilla</system>
     <url>https://code.google.com/p/weathernext/issues</url>
@@ -245,10 +226,29 @@
           <xmlOutputDirectory>target/site</xmlOutputDirectory>
         </configuration>
       </plugin>
-      <plugin>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>2.7</version>
-      </plugin>
+        <plugin>
+            <artifactId>maven-project-info-reports-plugin</artifactId>
+            <version>2.7</version>
+        </plugin>
     </plugins>
   </reporting>
+  <developers>
+    <developer>
+      <id>jordan.reed</id>
+      <name>Jordan</name>
+      <url>https://plus.google.com/u/0/+JordanReed</url>
+      <organization>Chaos Corporation</organization>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>-7</timezone>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:https://code.google.com/p/weathernext/</connection>
+    <developerConnection>scm:git:https://code.google.com/p/weathernext/</developerConnection>
+    <tag>HEAD</tag>
+    <url>http://https://code.google.com/p/weathernext/source/browse/</url>
+  </scm>
 </project>

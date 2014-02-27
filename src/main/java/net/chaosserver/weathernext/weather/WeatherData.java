@@ -46,6 +46,9 @@ public class WeatherData implements Comparable<WeatherData>, Serializable {
     /** The machine readable weather state. */
     protected WeatherState weatherState;
 
+    /** The machine readable phase of the moon. */
+    protected MoonPhase moonPhase;
+
     /** The friendly description of the forecast. */
     protected String weatherDescription;
 
@@ -76,6 +79,7 @@ public class WeatherData implements Comparable<WeatherData>, Serializable {
      * @param day The date this object represents
      * @param locationName The friendly name of the location
      * @param weatherState The machine readable weather state
+     * @param moonPhase the machine readable lunation of the moon
      * @param weatherDescription The friendly description of the forecast
      * @param highTempurature The high temperature for the day
      * @param lowTempurature The low temperature for the day
@@ -87,13 +91,15 @@ public class WeatherData implements Comparable<WeatherData>, Serializable {
      *            from
      */
     public WeatherData(Date day, String locationName,
-            WeatherState weatherState, String weatherDescription,
-            float highTempurature, float lowTempurature, Date sunrise,
-            Date sunset, String attributionString, String attributionUrl) {
+            WeatherState weatherState, MoonPhase moonPhase,
+            String weatherDescription, float highTempurature,
+            float lowTempurature, Date sunrise, Date sunset,
+            String attributionString, String attributionUrl) {
 
         this.day = day != null ? (Date) day.clone() : null;
         setLocationName(locationName);
         this.weatherState = weatherState;
+        this.moonPhase = moonPhase;
         this.weatherDescription = weatherDescription;
         this.highTempurature = highTempurature;
         this.lowTempurature = lowTempurature;
@@ -155,6 +161,15 @@ public class WeatherData implements Comparable<WeatherData>, Serializable {
      */
     public WeatherState getWeatherState() {
         return this.weatherState;
+    }
+
+    /**
+     * The machine readable moon phase.
+     * 
+     * @return the machine readable moon phase
+     */
+    public MoonPhase getMoonPhase() {
+        return this.moonPhase;
     }
 
     /**
@@ -303,6 +318,8 @@ public class WeatherData implements Comparable<WeatherData>, Serializable {
         sb.append(this.getLocationName());
         sb.append(", weatherState=");
         sb.append(this.getWeatherState());
+        sb.append(", moonPhase=");
+        sb.append(this.getMoonPhase());
         sb.append(", weatherDescription=");
         sb.append(this.getWeatherDescription());
         sb.append(", highTempurature=");

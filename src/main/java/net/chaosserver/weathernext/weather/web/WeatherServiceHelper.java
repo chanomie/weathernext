@@ -50,6 +50,7 @@ import javax.mail.internet.MimeMultipart;
 import net.chaosserver.weathernext.weather.WeatherData;
 import net.chaosserver.weathernext.weather.WeatherService;
 import net.chaosserver.weathernext.weather.services.ForecastIoWeatherService;
+import net.chaosserver.weathernext.weather.services.YahooWeatherService;
 import net.chaosserver.weathernext.zipcode.LocationData;
 import net.chaosserver.weathernext.zipcode.ZipCodeLookup;
 
@@ -63,37 +64,73 @@ import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
  * @author jreed
  */
 public class WeatherServiceHelper {
+    /** Java logger. */
     private static final Logger log = Logger
             .getLogger(WeatherServiceHelper.class.getName());
 
-    protected WeatherService weatherService;
-    protected ZipCodeLookup zipCodeLookup;
-    Properties props = new Properties();
-    Session session = Session.getDefaultInstance(props, null);
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd");
-    Cache weatherDataCache;
+    /** Buffer size when connecting streams. */
+    private static final int BUFFER_SIZE = 1024;
 
+    /** The date format used in the message subject. */
+    private static final SimpleDateFormat SUBJECT_DATE_FORMAT = new SimpleDateFormat(
+            "MM/dd");
+
+    /** Connection timeout set to 60 seconds; max allowed by Google App Engine. */
+    private static final int CONNECTION_TIMEOUT = 60000;
+
+    /** Cache Expires every 6 hours. */
+    private static final int CACHE_EXPIRE = 21600;
+
+    /** Primary WeatherService to be used. */
+    protected WeatherService weatherService;
+
+    /** WeatherService to use when the primary throws an exception. */
+    protected WeatherService fallbackService;
+
+    /** Zipcode Lookup object. */
+    protected ZipCodeLookup zipCodeLookup;
+
+    /** The JavaMail sessions. */
+    protected Session mailSession = Session.getDefaultInstance(
+            new Properties(), null);
+
+    /** Holds a cache of weather data objects. */
+    protected Cache weatherDataCache;
+
+    /**
+     * Generates a new WeatherService Helper. This contains internally cache
+     * objects and is meant to be autowired as a Singleton to make sure there is
+     * only one instance of the cache.
+     */
     public WeatherServiceHelper() {
         try {
             CacheFactory cacheFactory = CacheManager.getInstance()
                     .getCacheFactory();
-            Map<Integer, Integer> props = new HashMap<Integer, Integer>();
+            Map<Integer, Integer> cacheProperties = new HashMap<Integer, Integer>();
 
             // Expire the cache every 6 hours.
             // TODO - this is bug it really should expire at midnight based on
             // timezone
-            props.put(GCacheFactory.EXPIRATION_DELTA, 21600);
-            weatherDataCache = cacheFactory.createCache(props);
+            cacheProperties.put(GCacheFactory.EXPIRATION_DELTA, CACHE_EXPIRE);
+            weatherDataCache = cacheFactory.createCache(cacheProperties);
         } catch (CacheException e) {
             log.log(Level.WARNING, "Failed to initialize the cache.", e);
         }
 
         zipCodeLookup = new ZipCodeLookup();
-        // weatherService = new YahooWeatherService();
         weatherService = new ForecastIoWeatherService(zipCodeLookup);
+        fallbackService = new YahooWeatherService();
         // weatherService = new StaticWeatherService();
     }
 
+    /**
+     * Gets the WeatherData for a particular zipcode and time format. It will
+     * use the primary service and then fallback to the secondary.
+     * 
+     * @param zipcode zipcode for the weather
+     * @param timezone the zone used to calculate tomorrow
+     * @return the weather and forecast
+     */
     @SuppressWarnings("unchecked")
     public WeatherData getWeatherData(String zipcode, TimeZone timezone) {
         WeatherDataCacheKey weatherDataCacheKey = new WeatherDataCacheKey(
@@ -101,10 +138,16 @@ public class WeatherServiceHelper {
         WeatherData weatherData = (WeatherData) weatherDataCache
                 .get(weatherDataCacheKey);
         if (weatherData == null) {
-            weatherData = weatherService.getWeather(zipcode, timezone);
+            try {
+                weatherData = weatherService.getWeather(zipcode, timezone);
+            } catch (Exception e) {
+                log.log(Level.WARNING,
+                        "Error getting from primary weather source", e);
+                weatherData = fallbackService.getWeather(zipcode, timezone);
+            }
             if (weatherData != null) {
                 LocationData locationData = zipCodeLookup
-                        .getLocationDate(zipcode);
+                        .getLocationData(zipcode);
                 if (locationData != null && locationData.getCity() != null) {
                     weatherData.setLocationName(locationData.getCity());
                 } else {
@@ -117,9 +160,24 @@ public class WeatherServiceHelper {
         return weatherData;
     }
 
+    /**
+     * Sends an email message using the Mail Services to the recipient.
+     * 
+     * @param recipientName the friendly name of the person receiving the mail
+     * @param recipientEmail the email address to send to
+     * @param webPrefix prefix of where the site is being hosted at to allow the
+     *            call to make requests of the JSPs for HTML/Text content of the
+     *            mail.
+     * @param zipcode zipcode of the weather forecast to pull
+     * @param timezoneString the timezone to use when calculating "tomorrow"
+     * @param skey the subscription key if available
+     * @return the HTML version of the mail that was sent
+     * @throws MessagingException exception sending the message
+     * @throws IOException exception grabbing the HTML/Text versions
+     */
     public String sendMessage(String recipientName, String recipientEmail,
-            String webPrefix, String zipcode, String timezoneString, String skey)
-            throws MessagingException, IOException {
+            String webPrefix, String zipcode, String timezoneString,
+            String skey) throws MessagingException, IOException {
 
         TimeZone timezone = TimeZone.getTimeZone("America/Los_Angeles");
         if (timezoneString != null) {
@@ -145,51 +203,107 @@ public class WeatherServiceHelper {
         String textString = getUrlAsString(webPrefix + "/weather/text?"
                 + parameters.toString());
 
-        MimeMessage msg = new MimeMessage(session);
-        msg.setFrom(new InternetAddress(
-                "weathernext@weathernext.appspotmail.com", "Weather.Next"));
+        StringBuffer subject = new StringBuffer();
+        String weatherStateIcon = "\uD83D\uDCA3";
+        switch (weatherData.getWeatherState()) {
+            case CLEAR:
+                weatherStateIcon = "\u2600"; // 9728
+                break;
+            case CLOUDS:
+                weatherStateIcon = "\u2601"; // 9729
+                break;
+            case RAIN:
+                weatherStateIcon = "\u2614"; // 9748
+                break;
+            case THUNDERSTORM:
+                weatherStateIcon = "\u26A1"; // 9889
+                break;
+            case DRIZZLE:
+                weatherStateIcon = "\u2602"; // 9730
+                break;
+            case SNOW:
+                weatherStateIcon = "\u2603"; // 9731
+                break;
+            case ATMOSPHERE:
+                weatherStateIcon = "\u2668"; // 9832
+                break;
+            case EXTREME:
+                weatherStateIcon = "\uD83C\uDF0B"; // 127755
+                break;
+            default:
+                weatherStateIcon = "\uD83D\uDCA3"; // 128163
+                break;
+        }
+        String moonIcon = null;
+        if (weatherData.getMoonPhase() != null) {
+            switch (weatherData.getMoonPhase()) {
+                case FULL:
+                    moonIcon = "\uD83C\uDF15";
+                    break;
+                case WAXING_GIBBOUS:
+                    moonIcon = "\uD83C\uDF14";
+                    break;
+                case FIRST_QUARTER:
+                    moonIcon = "\uD83C\uDF13";
+                    break;
+                case WAXING_CRESCENT:
+                    moonIcon = "\uD83C\uDF12";
+                    break;
+                case NEW:
+                    moonIcon = "\uD83C\uDF11";
+                    break;
+                case WANING_CRESCENT:
+                    moonIcon = "\uD83C\uDF18";
+                    break;
+                case THIRD_QUARTER:
+                    moonIcon = "\uD83C\uDF17";
+                    break;
+                case WANING_GIBBOUS:
+                    moonIcon = "\uD83C\uDF16";
+                    break;
+                default:
+                    moonIcon = null;
+                    break;
+            }
+        }
+
+        MimeMessage msg = new MimeMessage(mailSession);
+
+        if (moonIcon == null) {
+            msg.setFrom(new InternetAddress(
+                    "weathernext@weathernext.appspotmail.com",
+                    weatherStateIcon + " " + "Weather.Next", "UTF-8"));
+        } else {
+            msg.setFrom(new InternetAddress(
+                    "weathernext@weathernext.appspotmail.com",
+                    weatherStateIcon + " " + moonIcon + " " + "Weather.Next",
+                    "UTF-8"));
+
+            msg.setSubject(
+                    weatherStateIcon + " " + moonIcon + " "
+                            + subject.toString(), "UTF-8");
+        }
+
         msg.addRecipient(Message.RecipientType.TO, new InternetAddress(
                 recipientEmail, recipientName));
 
-        StringBuffer subject = new StringBuffer();
-        String weatherStateIcon = "\uD83D\uDCA3 ";
-        switch (weatherData.getWeatherState()) {
-            case CLEAR:
-                weatherStateIcon = "\u2600 "; // 9728
-                break;
-            case CLOUDS:
-                weatherStateIcon = "\u2601 "; // 9729
-                break;
-            case RAIN:
-                weatherStateIcon = "\u2614 "; // 9748
-                break;
-            case THUNDERSTORM:
-                weatherStateIcon = "\u26A1 "; // 9889
-                break;
-            case DRIZZLE:
-                weatherStateIcon = "\u2602 "; // 9730
-                break;
-            case SNOW:
-                weatherStateIcon = "\u2603 "; // 9731
-                break;
-            case ATMOSPHERE:
-                weatherStateIcon = "\u2668 "; // 9832
-                break;
-            case EXTREME:
-                weatherStateIcon = "\uD83C\uDF0B "; // 127755
-                break;
-            default:
-                weatherStateIcon = "\uD83D\uDCA3 "; // 128163
-                break;
-        }
         subject.append(weatherData.getLocationName());
         subject.append(" ");
-        subject.append(simpleDateFormat.format(weatherData.getDay()));
+        subject.append(SUBJECT_DATE_FORMAT.format(weatherData.getDay()));
         subject.append(", H");
         subject.append(Math.round(weatherData.getHighTempurature()));
         subject.append(", L");
         subject.append(Math.round(weatherData.getLowTempurature()));
-        msg.setSubject(weatherStateIcon + subject.toString(), "UTF-8");
+        msg.setSubject(subject.toString());
+
+        /*
+         * Emoji was making the subject too long, moving into the From field.
+         * @formatter:off if (moonIcon == null) {
+         * msg.setSubject(weatherStateIcon + " " + subject.toString(), "UTF-8");
+         * } else { msg.setSubject( weatherStateIcon + " " + moonIcon + " " +
+         * subject.toString(), "UTF-8"); }
+         * @formatter:on
+         */
         Multipart mp = new MimeMultipart();
 
         MimeBodyPart bodyPart = new MimeBodyPart();
@@ -205,6 +319,14 @@ public class WeatherServiceHelper {
         return htmlString;
     }
 
+    /**
+     * Requests a URL and then returns the content of the response as a string.
+     * Used internally to grab the HTML and Text versions as a String.
+     * 
+     * @param urlString the string to grab
+     * @return the result as string
+     * @throws IOException error grabbing the result.
+     */
     protected String getUrlAsString(String urlString) throws IOException {
         if (log.isLoggable(Level.FINE)) {
             log.fine("Fetching internal URL [" + urlString + "]");
@@ -212,8 +334,8 @@ public class WeatherServiceHelper {
         URL url = new URL(urlString);
         URLConnection connection = url.openConnection();
         connection.connect();
-        connection.setConnectTimeout(60000); // 60 Seconds
-        connection.setReadTimeout(60000); // 60 Seconds
+        connection.setConnectTimeout(CONNECTION_TIMEOUT); // 60 Seconds
+        connection.setReadTimeout(CONNECTION_TIMEOUT); // 60 Seconds
 
         BufferedInputStream reader = new BufferedInputStream(url.openStream());
 
@@ -221,7 +343,7 @@ public class WeatherServiceHelper {
         BufferedOutputStream cacheWriter = new BufferedOutputStream(
                 byteArrayStream);
 
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
         int len;
         while ((len = reader.read(buffer)) != -1) {
             cacheWriter.write(buffer, 0, len);

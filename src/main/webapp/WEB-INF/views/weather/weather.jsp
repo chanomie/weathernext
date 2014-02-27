@@ -88,6 +88,40 @@
             <c:set var="sunSchedule"><c:if test="${not empty weatherData.sunrise}">, Sunrise <fmt:formatDate pattern="h:mm a" value="${weatherData.sunrise}" /></c:if><c:if test="${not empty weatherData.sunset}">, Sunset <fmt:formatDate pattern="h:mm a" value="${weatherData.sunset}" /></c:if></c:set>
         </c:otherwise>
     </c:choose>	
+    <c:choose>
+	    <c:when test="${weatherData.moonPhase == 'FULL'}">
+	    	<c:set var="moonIcon" value="/imgs/moon/full.png"/>
+	    	<c:set var="moonDescription" value="Full Moon"/>
+	    </c:when>
+	    <c:when test="${weatherData.moonPhase == 'WAXING_GIBBOUS'}">
+	    	<c:set var="moonIcon" value="/imgs/moon/waxing_gibbous.png"/>
+	    	<c:set var="moonDescription" value="Waxing Gibbous"/>
+	    </c:when>
+	    <c:when test="${weatherData.moonPhase == 'FIRST_QUARTER'}">
+	    	<c:set var="moonIcon" value="/imgs/moon/first_quarter.png"/>
+	    	<c:set var="moonDescription" value="First Quarter"/>
+	    </c:when>
+	    <c:when test="${weatherData.moonPhase == 'WAXING_CRESCENT'}">
+	    	<c:set var="moonIcon" value="/imgs/moon/waxing_crescent.png"/>
+	    	<c:set var="moonDescription" value="Waxing Crescent"/>
+	    </c:when>
+	    <c:when test="${weatherData.moonPhase == 'NEW'}">
+	    	<c:set var="moonIcon" value="/imgs/moon/new.png"/>
+	    	<c:set var="moonDescription" value="New Moon"/>
+	    </c:when>
+	    <c:when test="${weatherData.moonPhase == 'WANING_CRESCENT'}">
+	    	<c:set var="moonIcon" value="/imgs/moon/waning_crescent.png"/>
+	    	<c:set var="moonDescription" value="Waning Crescent"/>
+	    </c:when>
+	    <c:when test="${weatherData.moonPhase == 'THIRD_QUARTER'}">
+	    	<c:set var="moonIcon" value="/imgs/moon/third_quarter.png"/>
+	    	<c:set var="moonDescription" value="Third Quarter"/>
+	    </c:when>
+	    <c:when test="${weatherData.moonPhase == 'WANING_GIBBOUS'}">
+	    	<c:set var="moonIcon" value="/imgs/moon/waning_gibbous.png"/>
+	    	<c:set var="moonDescription" value="Waning Gibbous"/>
+	    </c:when>
+    </c:choose>
 	<!--  height: 920 -->
 	<body bgcolor="<c:out value="${backgroundColor}"/>" style="background-color:<c:out value="${backgroundColor}"/>; margin: 0px; font-family: Arial; color: white; text-shadow: 0px 0px 4px rgba(0, 0, 0, 0.5); width: 100%; min-width: 100%">
 		<div style="font-size: 0em; width: 100%; text-shadow:none; color: <c:out value="${backgroundColor}"/>"><c:out value="${weatherDescription}"/><c:out value="${sunSchedule}"/></div>
@@ -97,6 +131,9 @@
 			<tr style="font-size: 1em; height: 20px;"><td colspan="2"><span class="appleWhiteLinks"><fmt:formatDate pattern="EEEEEE, MMMM dd" 
             value="${weatherData.day}" /></span></td></tr>
 			<tr style="font-size: 1em; height: 20px;"><td colspan="2"><c:out value="${weatherData.weatherDescription}"/><img src="<c:out value="${prefix}"/><c:out value="${conditionIcon}"/>" style="vertical-align:middle; padding-left: 5px;" alt="${weatherData.weatherDescription}" title="${weatherData.weatherDescription}" height="20" width="20"/></td></tr>
+			<c:if test="${not empty moonIcon}">
+				<tr style="font-size: 1em; height: 20px;"><td colspan="2"><c:out value="${moonDescription}"/><img src="<c:out value="${prefix}"/><c:out value="${moonIcon}"/>" style="vertical-align:middle; padding-left: 5px;" alt="${moonDescription}" title="${moonDescription}" height="20" width="20"/></td></tr>
+			</c:if>
 			<tr style="height: 70px;">
 				<td width="50%" style="font-size: 3em; width: 50%;">&uarr; <fmt:formatNumber type="number" maxFractionDigits="0" value="${weatherData.highTempurature}" />&#176;</td>
 				<td width="50%" style="font-size: 3em; width: 50%; color: lightblue;">&darr; <fmt:formatNumber type="number" maxFractionDigits="0" value="${weatherData.lowTempurature}" />&#176;</td>

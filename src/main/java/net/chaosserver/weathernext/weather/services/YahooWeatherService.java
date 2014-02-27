@@ -37,6 +37,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import net.chaosserver.weathernext.weather.MoonPhase;
 import net.chaosserver.weathernext.weather.WeatherData;
 import net.chaosserver.weathernext.weather.WeatherService;
 import net.chaosserver.weathernext.weather.WeatherState;
@@ -79,7 +80,7 @@ public class YahooWeatherService implements WeatherService {
 
     /** Attribute of the service provider. */
     protected String attributionString = "Yahoo! Weather";
-    
+
     /** URL for attribution. */
     protected String attributionUrl = "http://weather.yahoo.com";
 
@@ -112,8 +113,7 @@ public class YahooWeatherService implements WeatherService {
         if (woeId != null) {
             try {
                 String yahooURLString = "http://weather.yahooapis.com/"
-                    + "forecastrss?w="
-                    + woeId;
+                        + "forecastrss?w=" + woeId;
                 URL yahooURL = new URL(yahooURLString);
                 Document doc = dBuilder.parse(new BufferedInputStream(yahooURL
                         .openStream()));
@@ -143,12 +143,13 @@ public class YahooWeatherService implements WeatherService {
 
                         Date date = yahooDateFormat.parse(dateString);
 
-                        WeatherState weatherState =
-                                parseWeatherState(yahooCode);
+                        WeatherState weatherState = parseWeatherState(yahooCode);
+
+                        MoonPhase moonPhase = null;
 
                         if (date.after(todayEnd)) {
                             WeatherData weatherData = new WeatherData(date,
-                                    null, weatherState, description,
+                                    null, weatherState, moonPhase, description,
                                     (float) high, (float) low, null, null,
                                     attributionString, attributionUrl);
 
@@ -181,8 +182,7 @@ public class YahooWeatherService implements WeatherService {
     }
 
     /**
-     * Parses the yahoo weather code and converts it into a WeatherState
-     * object.
+     * Parses the yahoo weather code and converts it into a WeatherState object.
      * 
      * @param yahooCode the yahoo weather code.
      * @return the state object
@@ -327,16 +327,16 @@ public class YahooWeatherService implements WeatherService {
  * Sunny. High: 62 Low: 38<br /> Sat - AM Clouds/PM Sun. High: 68 Low: 36<br />
  * Sun - Sunny. High: 65 Low: 33<br /> <br /> <a href=
  * "http://us.rd.yahoo.com/dailynews/rss/weather/Carmichael__CA/
- * *http://weather.yahoo.com/forecast/USCA0185_f.html"
- * >Full Forecast at Yahoo! Weather</a><BR/><BR/> (provided by <a
- * href="http://www.weather.com" >The Weather Channel</a>)<br/>]]></description>
- * <yweather:forecast day="Wed" date="25 Dec 2013" low="35" high="63"
- * text="Clear" code="31" /> <yweather:forecast day="Thu" date="26 Dec 2013"
- * low="34" high="66" text="Sunny" code="32" /> <yweather:forecast day="Fri"
- * date="27 Dec 2013" low="38" high="62" text="Sunny" code="32" />
- * <yweather:forecast day="Sat" date="28 Dec 2013" low="36" high="68"
- * text="AM Clouds/PM Sun" code="30" /> <yweather:forecast day="Sun"
- * date="29 Dec 2013" low="33" high="65" text="Sunny" code="32" /> <guid
+ * *http://weather.yahoo.com/forecast/USCA0185_f.html" >Full Forecast at Yahoo!
+ * Weather</a><BR/><BR/> (provided by <a href="http://www.weather.com" >The
+ * Weather Channel</a>)<br/>]]></description> <yweather:forecast day="Wed"
+ * date="25 Dec 2013" low="35" high="63" text="Clear" code="31" />
+ * <yweather:forecast day="Thu" date="26 Dec 2013" low="34" high="66"
+ * text="Sunny" code="32" /> <yweather:forecast day="Fri" date="27 Dec 2013"
+ * low="38" high="62" text="Sunny" code="32" /> <yweather:forecast day="Sat"
+ * date="28 Dec 2013" low="36" high="68" text="AM Clouds/PM Sun" code="30" />
+ * <yweather:forecast day="Sun" date="29 Dec 2013" low="33" high="65"
+ * text="Sunny" code="32" /> <guid
  * isPermaLink="false">USCA0185_2013_12_29_7_00_PST</guid> </item> </channel>
  * </rss>
  */

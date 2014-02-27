@@ -28,6 +28,7 @@ import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import net.chaosserver.weathernext.weather.MoonPhase;
 import net.chaosserver.weathernext.weather.WeatherData;
 import net.chaosserver.weathernext.weather.WeatherService;
 import net.chaosserver.weathernext.weather.WeatherState;
@@ -75,7 +76,8 @@ public class ForecastIoWeatherService implements WeatherService {
     /** Attribute URL. */
     protected String attributionUrl = "http://forecast.io/";
 
-    /** Creates the services and provides a zipcode lookup class.
+    /**
+     * Creates the services and provides a zipcode lookup class.
      * 
      * @param zipCodeLookup instance of zipcode lookup
      */
@@ -113,8 +115,8 @@ public class ForecastIoWeatherService implements WeatherService {
 
                 JsonNode resultNode = actualObj.path("daily").path("data");
                 if (resultNode instanceof ArrayNode) {
-                    Iterator<JsonNode> dataNodesIterator = 
-                            ((ArrayNode) resultNode).getElements();
+                    Iterator<JsonNode> dataNodesIterator = ((ArrayNode) resultNode)
+                            .getElements();
 
                     while (dataNodesIterator.hasNext()) {
                         JsonNode dataNode = dataNodesIterator.next();
@@ -132,15 +134,18 @@ public class ForecastIoWeatherService implements WeatherService {
                                 .getLongValue();
                         long sunsetLong = dataNode.path("sunsetTime")
                                 .getLongValue();
+                        double moonLunation = dataNode.path("moonPhase")
+                                .getDoubleValue();
 
                         Date date = new Date(dateLong * MILLIS_TO_SECS);
                         Date sunrise = new Date(sunriseLong * MILLIS_TO_SECS);
                         Date sunset = new Date(sunsetLong * MILLIS_TO_SECS);
                         WeatherState weatherState = parseWeatherState(iconCode);
+                        MoonPhase moonPhase = parseMoonPhase(moonLunation);
 
                         if (date.after(todayEnd)) {
                             WeatherData weatherData = new WeatherData(date,
-                                    null, weatherState, description,
+                                    null, weatherState, moonPhase, description,
                                     (float) high, (float) low, sunrise, sunset,
                                     attributionString, attributionUrl);
 
@@ -171,8 +176,8 @@ public class ForecastIoWeatherService implements WeatherService {
     }
 
     /**
-     * Parses the iconCode returned from the API can converts it into
-     * the WeatherState enumeration.
+     * Parses the iconCode returned from the API can converts it into the
+     * WeatherState enumeration.
      * 
      * @param iconCode the icon for forecast
      * @return the weatherstate
@@ -204,6 +209,32 @@ public class ForecastIoWeatherService implements WeatherService {
          */
 
         return resultState;
+    }
+
+    private MoonPhase parseMoonPhase(double moonLunation) {
+        MoonPhase resultPhase = MoonPhase.UNKNOWN;
+
+        // CHECKSTYLE:OFF
+        if (moonLunation >= 0.9375 && moonLunation < 0.0625) {
+            resultPhase = MoonPhase.FULL;
+        } else if (moonLunation >= 0.0625 && moonLunation < 0.1875) {
+            resultPhase = MoonPhase.WAXING_GIBBOUS;
+        } else if (moonLunation >= 0.1875 && moonLunation < 0.3125) {
+            resultPhase = MoonPhase.FIRST_QUARTER;
+        } else if (moonLunation >= 0.3125 && moonLunation < 0.4375) {
+            resultPhase = MoonPhase.WAXING_CRESCENT;
+        } else if (moonLunation >= 0.4375 && moonLunation < 0.5625) {
+            resultPhase = MoonPhase.NEW;
+        } else if (moonLunation >= 0.5625 && moonLunation < 0.6875) {
+            resultPhase = MoonPhase.WANING_CRESCENT;
+        } else if (moonLunation >= 0.6875 && moonLunation < 0.8125) {
+            resultPhase = MoonPhase.THIRD_QUARTER;
+        } else if (moonLunation >= 0.8125 && moonLunation < 0.9375) {
+            resultPhase = MoonPhase.WANING_GIBBOUS;
+        }
+        // CHECKSTYLE:ON
+
+        return resultPhase;
     }
 
 }

@@ -21,24 +21,62 @@ package net.chaosserver.weathernext.weather.web;
 import java.io.Serializable;
 import java.util.TimeZone;
 
+/**
+ * Creates a unique key for caching a WeatherData object. WeatherData is unique
+ * based on the location as well timezone, since forecast is calculated based on
+ * future dates in the timezone.
+ * 
+ * @author jreed
+ * 
+ */
 public class WeatherDataCacheKey implements Serializable {
+    /** Unique serial number. */
     private static final long serialVersionUID = -3475102072354713156L;
-    String zipcode;
-    TimeZone timezone;
 
+    /** Zipcode. */
+    protected String zipcode;
+
+    /** Timezone. */
+    protected TimeZone timezone;
+
+    /**
+     * Constructs a key object with this zipcode and timezone.
+     * 
+     * @param zipcode zipcode for the WeatherData object
+     * @param timezone timezone of the WeatherData object
+     */
     public WeatherDataCacheKey(String zipcode, TimeZone timezone) {
         this.zipcode = zipcode;
         this.timezone = timezone;
     }
 
-    public String getZipcode() {
+    /**
+     * Package private since it only needs to be accessed by other
+     * WeatherDataCacheKey objects.
+     * 
+     * @return the zipcode
+     */
+    protected String getZipcode() {
         return this.zipcode;
     }
 
-    public TimeZone getTimezone() {
+    /**
+     * Package private since it only needs to be accessed by other
+     * WeatherDataCacheKey objects.
+     * 
+     * @return the timezone
+     */
+    protected TimeZone getTimezone() {
         return this.timezone;
     }
 
+    /**
+     * Checks if two objects are equal by comparing the zipcode and the timezone
+     * string.
+     * 
+     * @param o object to compare against
+     * @return if objects are equal
+     */
     public boolean equals(Object o) {
         if (!(o instanceof WeatherDataCacheKey)) {
             throw new ClassCastException();
@@ -64,6 +102,12 @@ public class WeatherDataCacheKey implements Serializable {
         return equals;
     }
 
+    /**
+     * Returns a unique HashCode for the objects - two objects with the same
+     * timezone and zipcode will have the same hashcode.
+     * 
+     * @return hashcode
+     */
     public int hashCode() {
         String hashcode = getTimezone().toString() + getZipcode();
         return hashcode.hashCode();
