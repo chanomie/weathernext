@@ -245,11 +245,12 @@ function getScheduleSuccess(data, status) {
 		sendTimeHour = new Date(parseInt(data[scheduleIndex].nextSend)).getHours()+":00";
 		selectBox = getSelectBox(data[scheduleIndex].zipcode, sendTimeHour);
 		$("#scheduletable").append(
-				$("<tr/>").
+				$("<div/>").
 					addClass("zipcoderow").
 					attr("data-sendhour",sendTimeHour).
 					attr("data-zipcode",data[scheduleIndex].zipcode).
-					append($("<td/>").
+					append($("<div/>").
+						addClass("zipcodefield").
 						append($("<input/>").
 							attr("size","5").
 							attr("type","text").
@@ -259,32 +260,101 @@ function getScheduleSuccess(data, status) {
 							addClass("centertext").
 							addClass("zipcodetext").
 							val(data[scheduleIndex].zipcode))).
-					append($("<td/>").
+					append($("<div/>").
+						addClass("timefield").
 						append(selectBox)).
-					append($("<td/>").
+					append($("<div/>").
 							addClass("actionButton").
 							append($("<i/>").
 									addClass("fa").
 									addClass("fa-trash-o").
 									addClass("deleteSchedule").
 									attr("data-key",data[scheduleIndex].key)
-									))
+									)).
+					append($("<div/>").
+							addClass('weatherflags').
+							append($("<img/>").
+									addClass("weathertoggle").
+									attr("data-weather","clear").
+									attr("data-status","true").
+									attr("height","32").
+									attr("width","32").
+									attr("src","imgs/icon/clear.png")).
+							append($("<img/>").
+									addClass("weathertoggle").
+									attr("data-weather","atmosphere").
+									attr("data-status","true").
+									attr("height","32").
+									attr("width","32").
+									attr("src","imgs/icon/atmosphere.png")).
+							append($("<img/>").
+									addClass("weathertoggle").
+									attr("data-weather","clouds").
+									attr("data-status","true").
+									attr("height","32").
+									attr("width","32").
+									attr("src","imgs/icon/clouds.png")).
+							append($("<img/>").
+									addClass("weathertoggle").
+									attr("data-weather","rain").
+									attr("data-status","true").
+									attr("height","32").
+									attr("width","32").
+									attr("src","imgs/icon/rain.png")).
+							append($("<img/>").
+									addClass("weathertoggle").
+									attr("data-weather","thunderstorm").
+									attr("data-status","true").
+									attr("height","32").
+									attr("width","32").
+									attr("src","imgs/icon/thunderstorm.png")).
+							append($("<img/>").
+									addClass("weathertoggle").
+									attr("data-weather","snow").
+									attr("data-status","true").
+									attr("height","32").
+									attr("width","32").
+									attr("src","imgs/icon/snow.png")).
+							append($("<img/>").
+									addClass("weathertoggle").
+									attr("data-weather","extreme").
+									attr("data-status","true").
+									attr("height","32").
+									attr("width","32").
+									attr("src","imgs/icon/extreme.png")).
+							append($("<img/>").
+									addClass("weathertoggle").
+									attr("data-weather","unknown").
+									attr("data-status","true").
+									attr("height","32").
+									attr("width","32").
+									attr("src","imgs/icon/unknown.png"))).
+					append($("<div/>").
+							addClass('templevels'))
 		);				
 	}
+	/*
+				    <div class="templevels">
+				    	<div>Below: <input size="5" type="text" class="centertext zipcodetext"></div>
+				    	<div>Above: <input size="5" type="text" class="centertext zipcodetext"></div>
+				    </div>
+	 */
 	
 	appendNewScheduleRow();
 	
 	$(".deleteSchedule").click(deleteSchedule);
 	$(".timeSelect").change(updateSchedule);
+	$(".weathertoggle").click(toggleWeather);
 }
 
 function appendNewScheduleRow() {
 	selectBox = getSelectBox("newtime", new Date().setHours(18));
 	$("#scheduletable").append(
-			$("<tr/>").
+			$("<div/>").
 				attr("id","newziprow").
 				addClass("zipcoderow").
-				append($("<td/>").
+				append($("<div/>").
+					addClass("zipcodefield").
 					append($("<input/>").
 						attr("size","5").
 						attr("type","text").
@@ -292,9 +362,10 @@ function appendNewScheduleRow() {
 						attr("id","newzipcode").
 						addClass("zipcodetext").
 						addClass("centertext"))).
-				append($("<td/>").
+				append($("<div/>").
+					addClass("timefield").
 					append(selectBox)).
-				append($("<td/>").
+				append($("<div/>").
 						addClass("actionButton").
 						append($("<i/>").
 								addClass("fa").
@@ -309,7 +380,7 @@ function deleteSchedule() {
 	var scheduleKey = $(this).attr("data-key");
 	consolelog("deleteSchedule");
 	consolelog("scheduleKey: [" + scheduleKey + "]");
-	$(this).closest("tr").remove();
+	$(this).closest("div.zipcoderow").remove();
 	
 	$.ajax({
 		url: "/api/schedule/"+scheduleKey,
@@ -319,25 +390,25 @@ function deleteSchedule() {
 }
 
 function addSchedule() {
-	var zipcode = $(this).closest("tr").find(".zipcodetext").val(),
-    schedule = $(this).closest("tr").find(".timeSelect").val();
+	var zipcode = $(this).closest("div.zipcoderow").find(".zipcodetext").val(),
+    schedule = $(this).closest("div.zipcoderow").find(".timeSelect").val();
 
 	consolelog("addSchedule");
 	consolelog("zipcode: [" + zipcode + "], schedule =[" + schedule + "]");
 	
 	// so some validation stuff
 	if(zipcode === null) {
-		$(this).closest("tr").find(".zipcodetext").addClass("error");
+		$(this).closest("div.zipcoderow").find(".zipcodetext").addClass("error");
 	} else if (!(zipcode.match(/^\d{5}$/))) {
-		$(this).closest("tr").find(".zipcodetext").addClass("error");
+		$(this).closest("div.zipcoderow").find(".zipcodetext").addClass("error");
 	} else if ( $("input[class='zipcodetext'][value='"+zipcode+"']").length > 1 ) {
-		$(this).closest("tr").find(".zipcodetext").addClass("error");
+		$(this).closest("div.zipcoderow").find(".zipcodetext").addClass("error");
 	} else {
-		$(this).closest("tr").find(".zipcodetext").removeClass("error");
-		$(this).closest("tr").find(".zipcodetext").attr("readonly","readonly");
+		$(this).closest("div.zipcoderow").find(".zipcodetext").removeClass("error");
+		$(this).closest("div.zipcoderow").find(".zipcodetext").attr("readonly","readonly");
 		// Change Add to Delete
-		$(this).closest("tr").removeAttr("id");
-		$(this).closest("tr").find(".actionButton").empty();
+		$(this).closest("div.zipcoderow").removeAttr("id");
+		$(this).closest("div.zipcoderow").find(".actionButton").empty();
 		
 		/*
 		// This should occur on callback of add so that the datakey
@@ -360,27 +431,58 @@ function addSchedule() {
 
 
 function updateSchedule() {
-	var zipcode = $(this).closest("tr").find(".zipcodetext").val(),
-        schedule = $(this).closest("tr").find(".timeSelect").val();
+	var zipcode = $(this).closest("div.zipcoderow").find(".zipcodetext").val(),
+        schedule = $(this).closest("div.zipcoderow").find(".timeSelect").val();
 
 	consolelog("updateSchedule");
 	consolelog("zipcode: [" + zipcode + "], schedule =[" + schedule + "]");
 	
-	if($(this).closest("tr").attr("id") !== "newziprow") {
+	if($(this).closest("div.zipcoderow").attr("id") !== "newziprow") {
 		updateServerSchedule(zipcode, schedule);
 	} else {
 		consolelog("don't update on new entry")
 	}
 }
 
+function toggleWeather() {
+ 	var zipcode = $(this).closest("div.zipcoderow").find(".zipcodetext").val(),
+        schedule = $(this).closest("div.zipcoderow").find(".timeSelect").val(),
+ 		weatherId = $(this).attr("data-weather"),
+ 		weatherStatus = $(this).attr("data-status");
+ 	
+ 	if("true" == weatherStatus) {
+ 		$(this).attr("data-status","false");
+ 		$(this).attr("src","imgs/icon/" + weatherId + "-bw.png");
+ 	} else {
+ 		$(this).attr("data-status","true");
+ 		$(this).attr("src","imgs/icon/" + weatherId + ".png");
+ 	}
+	
+ 	updateServerSchedule(zipcode,schedule);
+}
+
 function updateServerSchedule(zipcode, schedule) {
-	var scheduleTime = (new Date()).setHours(schedule.match(/^\d{1,2}/)),
-	    timezoneString = getTimezoneOffset();
+	var scheduleTime   = (new Date()).setHours(schedule.match(/^\d{1,2}/)),
+	    timezoneString = getTimezoneOffset(),
+	    selector       = "div.zipcoderow[data-zipcode='"+zipcode+"']", 
+	    scheduleDiv    = $( selector ),
+	    weatherConditionString = "";
+	
+	scheduleDiv.find(".weathertoggle").each(function() {
+		if($(this).attr("data-status") == "true") {
+			if(weatherConditionString.length > 0) {
+				weatherConditionString += ",";
+			}
+			weatherConditionString += $(this).attr("data-weather");
+		}
+	});
+	
+	consolelog("Weather Conditions: [" + weatherConditionString + "]");
 	
 	$.ajax({
 		url: "/api/schedule",
 		type: "POST",
-		data: { "zip": zipcode, "timezone": timezoneString , "sendTime": scheduleTime},
+		data: { "zip": zipcode, "timezone": timezoneString, "sendTime": scheduleTime, "weather":weatherConditionString},
 		error: genericError
     });
 }

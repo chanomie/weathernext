@@ -175,25 +175,57 @@ div.leftheaderbutton {
     text-align: center;
 }
 
-table.scheduletable {
+div.scheduletable {
 	width: 100%; 
 	border: solid black 1px;
 	max-width: 640px;
 	margin: auto;
 }
 
-table.scheduletable tr:nth-child(even) {
+div.zipcoderow {
+	width: 100%;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+div.scheduletable > div:nth-child(even) {
     background-color: #EEEEEE;
 }
 
-table.scheduletable td {
+div.zipcodefield, div.timefield, div.actionButton  {
+	display: inline-block;
 	text-align: center;
-	width: 33%;
+	width: 32%;
+}
+
+div.weatherflags {
+	display: inline-block;
+	text-align: center;
+	width: 100%;
+	padding-top: 5px;
+}
+
+div.templevels {
+	display: inline-block;
+	text-align: center;
+	width: 100%;
+	padding-top: 5px;
+}
+
+div.templevels > div {
+	display: inline-block;
+	text-align: center;
+	width: 49%;
+	
 }
 
 #findlocation {
 	padding-right:5px;
 } 
+
+.mailto a, .mailto a:visited {
+	color: black;
+}
 
 .centertext {
 	text-align: center;

@@ -55,7 +55,8 @@ public class ForecastIoWeatherService implements WeatherService {
 
     static {
         if (ForecastIoWeatherService.apiKey == null) {
-            ForecastIoWeatherService.apiKey = System.getProperty("forecastkey");
+            ForecastIoWeatherService.apiKey = System
+                    .getProperty("forecastkey");
             if (ForecastIoWeatherService.apiKey == null) {
                 throw new IllegalStateException(
                         "Failed to get forecastkey from environment");
@@ -100,7 +101,10 @@ public class ForecastIoWeatherService implements WeatherService {
             try {
 
                 String forecastURLString = "https://api.forecast.io/forecast/"
-                        + apiKey + "/" + geoCoord.getLatitude() + ","
+                        + apiKey
+                        + "/"
+                        + geoCoord.getLatitude()
+                        + ","
                         + geoCoord.getLongitude()
                         + "?excudes=currently,minutely,hourly,alerts,flags";
 
@@ -126,8 +130,8 @@ public class ForecastIoWeatherService implements WeatherService {
                                 .getDoubleValue();
                         double high = dataNode.path("temperatureMax")
                                 .getDoubleValue();
-                        String description = (String) dataNode.path("summary")
-                                .getTextValue();
+                        String description = (String) dataNode
+                                .path("summary").getTextValue();
                         String iconCode = (String) dataNode.path("icon")
                                 .getTextValue();
                         long sunriseLong = dataNode.path("sunriseTime")
@@ -145,15 +149,16 @@ public class ForecastIoWeatherService implements WeatherService {
 
                         if (date.after(todayEnd)) {
                             WeatherData weatherData = new WeatherData(date,
-                                    null, weatherState, moonPhase, description,
-                                    (float) high, (float) low, sunrise, sunset,
-                                    attributionString, attributionUrl);
+                                    null, weatherState, moonPhase,
+                                    description, (float) high, (float) low,
+                                    sunrise, sunset, attributionString,
+                                    attributionUrl);
 
                             if (logger.isLoggable(Level.FINEST)) {
                                 logger.finest("Parsed iconCode [" + iconCode
                                         + "] include resultstate ["
-                                        + weatherState + "]" + " and added : "
-                                        + weatherData);
+                                        + weatherState + "]"
+                                        + " and added : " + weatherData);
                             }
 
                             if (result == null) {
@@ -216,21 +221,21 @@ public class ForecastIoWeatherService implements WeatherService {
 
         // CHECKSTYLE:OFF
         if (moonLunation >= 0.9375 && moonLunation < 0.0625) {
-            resultPhase = MoonPhase.FULL;
-        } else if (moonLunation >= 0.0625 && moonLunation < 0.1875) {
-            resultPhase = MoonPhase.WAXING_GIBBOUS;
-        } else if (moonLunation >= 0.1875 && moonLunation < 0.3125) {
-            resultPhase = MoonPhase.FIRST_QUARTER;
-        } else if (moonLunation >= 0.3125 && moonLunation < 0.4375) {
-            resultPhase = MoonPhase.WAXING_CRESCENT;
-        } else if (moonLunation >= 0.4375 && moonLunation < 0.5625) {
             resultPhase = MoonPhase.NEW;
-        } else if (moonLunation >= 0.5625 && moonLunation < 0.6875) {
+        } else if (moonLunation >= 0.0625 && moonLunation < 0.1875) {
             resultPhase = MoonPhase.WANING_CRESCENT;
-        } else if (moonLunation >= 0.6875 && moonLunation < 0.8125) {
+        } else if (moonLunation >= 0.1875 && moonLunation < 0.3125) {
             resultPhase = MoonPhase.THIRD_QUARTER;
-        } else if (moonLunation >= 0.8125 && moonLunation < 0.9375) {
+        } else if (moonLunation >= 0.3125 && moonLunation < 0.4375) {
             resultPhase = MoonPhase.WANING_GIBBOUS;
+        } else if (moonLunation >= 0.4375 && moonLunation < 0.5625) {
+            resultPhase = MoonPhase.FULL;
+        } else if (moonLunation >= 0.5625 && moonLunation < 0.6875) {
+            resultPhase = MoonPhase.WAXING_GIBBOUS;
+        } else if (moonLunation >= 0.6875 && moonLunation < 0.8125) {
+            resultPhase = MoonPhase.FIRST_QUARTER;
+        } else if (moonLunation >= 0.8125 && moonLunation < 0.9375) {
+            resultPhase = MoonPhase.WAXING_CRESCENT;
         }
         // CHECKSTYLE:ON
 
