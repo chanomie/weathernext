@@ -102,45 +102,45 @@ public class WeatherController {
             @RequestParam(value = "emailformat", required = false) String emailformat,
             HttpServletRequest request, Model model) {
 
-        Boolean emailformatBoolean = Boolean.FALSE;
-        if (emailformat != null) {
-            emailformatBoolean = Boolean.valueOf(emailformat);
+        try {
+            Boolean emailformatBoolean = Boolean.FALSE;
+            if (emailformat != null) {
+                emailformatBoolean = Boolean.valueOf(emailformat);
+            }
+
+            log.fine("/weather URL Inputs zip=[" + zipcode + "], timezone=["
+                    + timezoneString + "], skey=[" + skey
+                    + "], emailformat=[" + emailformat
+                    + "], emailformatBoolean=[" + emailformatBoolean + "]");
+
+            TimeZone timezone = TimeZone.getTimeZone("America/Los_Angeles");
+            if (timezoneString != null) {
+                timezone = TimeZone.getTimeZone(timezoneString);
+            }
+            WeatherData weatherData = weatherServiceHelper.getWeatherData(
+                    zipcode, timezone);
+            String prefix = getRootUrl(request);
+
+            String description = weatherData.getWeatherDescription();
+            log.fine("Initial weather description [" + description + "]");
+            if (description != null) {
+                description = description.replaceAll("[\\.!]$", "");
+                log.fine("After replace weather description [" + description
+                        + "]");
+            }
+
+            model.addAttribute("weatherData", weatherData);
+            model.addAttribute("zipcode", zipcode);
+            model.addAttribute("weatherDescription", description);
+            model.addAttribute("timezone", timezone);
+            model.addAttribute("prefix", prefix);
+            model.addAttribute("skey", skey);
+            model.addAttribute("emailformat", emailformatBoolean);
+
+            return "weather/weather";
+        } catch (Exception e) {
+            return "weather/error";
         }
-
-        log.fine("/weather URL Inputs zip=[" + zipcode + "], timezone=["
-                + timezoneString + "], skey=[" + skey + "], emailformat=["
-                + emailformat + "], emailformatBoolean=["
-                + emailformatBoolean + "]");
-
-        TimeZone timezone = TimeZone.getTimeZone("America/Los_Angeles");
-        if (timezoneString != null) {
-            timezone = TimeZone.getTimeZone(timezoneString);
-        }
-        WeatherData weatherData = weatherServiceHelper.getWeatherData(
-                zipcode, timezone);
-        String prefix = getRootUrl(request);
-
-        String description = weatherData.getWeatherDescription();
-        log.fine("Initial weather description [" + description + "]");
-        if (description != null) {
-            description = description.replaceAll("[\\.!]$", "");
-            log.fine("After replace weather description [" + description
-                    + "]");
-        }
-
-        model.addAttribute("weatherData", weatherData);
-        model.addAttribute("zipcode", zipcode);
-        model.addAttribute("weatherDescription", description);
-        model.addAttribute("timezone", timezone);
-        model.addAttribute("prefix", prefix);
-        model.addAttribute("skey", skey);
-        model.addAttribute("emailformat", emailformatBoolean);
-
-        return "weather/weather";
-        /*
-         * if (weatherData != null) { return "weather/weather"; } else { return
-         * "weather/error"; }
-         */
     }
 
     /**
