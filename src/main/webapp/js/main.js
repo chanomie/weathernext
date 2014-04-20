@@ -236,7 +236,8 @@ function buildSchedulePage() {
 function getScheduleSuccess(data, status) {
 	var scheduleIndex,
 		sendTimeHour,
-		selectBox;
+		selectBox,
+		weatherStatusFlags;
 	
 	consolelog(JSON.stringify(data));
 	
@@ -244,6 +245,7 @@ function getScheduleSuccess(data, status) {
 	for(scheduleIndex = 0; scheduleIndex < data.length; scheduleIndex ++) {
 		sendTimeHour = new Date(parseInt(data[scheduleIndex].nextSend)).getHours()+":00";
 		selectBox = getSelectBox(data[scheduleIndex].zipcode, sendTimeHour);
+		weatherStatusFlags = getweatherStatusFlags(data[scheduleIndex].weatherStatus);
 		$("#scheduletable").append(
 				$("<div/>").
 					addClass("zipcoderow").
@@ -271,64 +273,7 @@ function getScheduleSuccess(data, status) {
 									addClass("deleteSchedule").
 									attr("data-key",data[scheduleIndex].key)
 									)).
-					append($("<div/>").
-							addClass('weatherflags').
-							append($("<img/>").
-									addClass("weathertoggle").
-									attr("data-weather","clear").
-									attr("data-status","true").
-									attr("height","32").
-									attr("width","32").
-									attr("src","imgs/icon/clear.png")).
-							append($("<img/>").
-									addClass("weathertoggle").
-									attr("data-weather","atmosphere").
-									attr("data-status","true").
-									attr("height","32").
-									attr("width","32").
-									attr("src","imgs/icon/atmosphere.png")).
-							append($("<img/>").
-									addClass("weathertoggle").
-									attr("data-weather","clouds").
-									attr("data-status","true").
-									attr("height","32").
-									attr("width","32").
-									attr("src","imgs/icon/clouds.png")).
-							append($("<img/>").
-									addClass("weathertoggle").
-									attr("data-weather","rain").
-									attr("data-status","true").
-									attr("height","32").
-									attr("width","32").
-									attr("src","imgs/icon/rain.png")).
-							append($("<img/>").
-									addClass("weathertoggle").
-									attr("data-weather","thunderstorm").
-									attr("data-status","true").
-									attr("height","32").
-									attr("width","32").
-									attr("src","imgs/icon/thunderstorm.png")).
-							append($("<img/>").
-									addClass("weathertoggle").
-									attr("data-weather","snow").
-									attr("data-status","true").
-									attr("height","32").
-									attr("width","32").
-									attr("src","imgs/icon/snow.png")).
-							append($("<img/>").
-									addClass("weathertoggle").
-									attr("data-weather","extreme").
-									attr("data-status","true").
-									attr("height","32").
-									attr("width","32").
-									attr("src","imgs/icon/extreme.png")).
-							append($("<img/>").
-									addClass("weathertoggle").
-									attr("data-weather","unknown").
-									attr("data-status","true").
-									attr("height","32").
-									attr("width","32").
-									attr("src","imgs/icon/unknown.png"))).
+					append(weatherStatusFlags).
 					append($("<div/>").
 							addClass('templevels'))
 		);				
@@ -345,6 +290,40 @@ function getScheduleSuccess(data, status) {
 	$(".deleteSchedule").click(deleteSchedule);
 	$(".timeSelect").change(updateSchedule);
 	$(".weathertoggle").click(toggleWeather);
+}
+
+function getweatherStatusFlags(weatherStatusString) {
+	var weatherStatusEnum = new Array("clear","atmosphere","clouds","rain","thunderstorm","snow","extreme","unknown"),
+	    weatherStatusEnumIndex,
+	    weatherStatusDiv;
+	
+	weatherStatusDiv = $("<div/>").
+						addClass('weatherflags');
+	
+	for(weatherStatusEnumIndex = 0; weatherStatusEnumIndex < weatherStatusEnum.length; weatherStatusEnumIndex ++) {
+		if(weatherStatusString !== null && weatherStatusString.indexOf(weatherStatusEnum[weatherStatusEnumIndex]) !== -1) {
+			// Status contained, so this would send
+			weatherStatusDiv.append($("<img/>").
+					addClass("weathertoggle").
+					attr("data-weather",weatherStatusEnum[weatherStatusEnumIndex]).
+					attr("data-status","true").
+					attr("height","32").
+					attr("width","32").
+					attr("src","imgs/icon/" + weatherStatusEnum[weatherStatusEnumIndex] + ".png"));
+			
+		} else {
+			// Status not contained, so it would not send
+			weatherStatusDiv.append($("<img/>").
+					addClass("weathertoggle").
+					attr("data-weather",weatherStatusEnum[weatherStatusEnumIndex]).
+					attr("data-status","false").
+					attr("height","32").
+					attr("width","32").
+					attr("src","imgs/icon/" + weatherStatusEnum[weatherStatusEnumIndex] + "-bw.png"));
+		}
+	}
+	
+	return weatherStatusDiv;
 }
 
 function appendNewScheduleRow() {

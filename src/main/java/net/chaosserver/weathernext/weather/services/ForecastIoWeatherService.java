@@ -219,23 +219,26 @@ public class ForecastIoWeatherService implements WeatherService {
     private MoonPhase parseMoonPhase(double moonLunation) {
         MoonPhase resultPhase = MoonPhase.UNKNOWN;
 
+        // new, waxing crescent, first quarter, waxing gibbous, full, waning
+        // gibbous, last quarter, waning cresecent
+
         // CHECKSTYLE:OFF
         if (moonLunation >= 0.9375 && moonLunation < 0.0625) {
             resultPhase = MoonPhase.NEW;
         } else if (moonLunation >= 0.0625 && moonLunation < 0.1875) {
-            resultPhase = MoonPhase.WANING_CRESCENT;
+            resultPhase = MoonPhase.WAXING_CRESCENT;
         } else if (moonLunation >= 0.1875 && moonLunation < 0.3125) {
-            resultPhase = MoonPhase.THIRD_QUARTER;
+            resultPhase = MoonPhase.FIRST_QUARTER;
         } else if (moonLunation >= 0.3125 && moonLunation < 0.4375) {
-            resultPhase = MoonPhase.WANING_GIBBOUS;
+            resultPhase = MoonPhase.WAXING_GIBBOUS;
         } else if (moonLunation >= 0.4375 && moonLunation < 0.5625) {
             resultPhase = MoonPhase.FULL;
         } else if (moonLunation >= 0.5625 && moonLunation < 0.6875) {
-            resultPhase = MoonPhase.WAXING_GIBBOUS;
+            resultPhase = MoonPhase.WANING_GIBBOUS;
         } else if (moonLunation >= 0.6875 && moonLunation < 0.8125) {
-            resultPhase = MoonPhase.FIRST_QUARTER;
+            resultPhase = MoonPhase.THIRD_QUARTER;
         } else if (moonLunation >= 0.8125 && moonLunation < 0.9375) {
-            resultPhase = MoonPhase.WAXING_CRESCENT;
+            resultPhase = MoonPhase.WANING_CRESCENT;
         }
         // CHECKSTYLE:ON
 

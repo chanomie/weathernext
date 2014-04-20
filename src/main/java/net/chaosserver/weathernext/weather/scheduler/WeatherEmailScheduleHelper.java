@@ -71,8 +71,8 @@ public class WeatherEmailScheduleHelper {
     public WeatherEmailSchedule getWeatherEmailSchedule(String ownerId,
             String recipientEmail, String zipcode) {
 
-        Entity entity = getWeatherEmailScheduleEntity(ownerId, recipientEmail,
-                zipcode);
+        Entity entity = getWeatherEmailScheduleEntity(ownerId,
+                recipientEmail, zipcode);
         return convertEntityToWeatherEmailSchedule(entity);
     }
 
@@ -87,15 +87,13 @@ public class WeatherEmailScheduleHelper {
     public List<WeatherEmailSchedule> getWeatherEmailSchedule(String ownerId,
             String recipientEmail) {
 
-        List<WeatherEmailSchedule> weatherEmailScheduleList = 
-                new ArrayList<WeatherEmailSchedule>();
+        List<WeatherEmailSchedule> weatherEmailScheduleList = new ArrayList<WeatherEmailSchedule>();
 
         Filter filter = new Query.CompositeFilter(CompositeFilterOperator.OR,
-                Arrays.<Filter> asList(
-                        new Query.FilterPredicate("recipientEmail",
-                                FilterOperator.EQUAL, recipientEmail),
-                        new Query.FilterPredicate("ownerId",
-                                FilterOperator.EQUAL, ownerId)));
+                Arrays.<Filter> asList(new Query.FilterPredicate(
+                        "recipientEmail", FilterOperator.EQUAL,
+                        recipientEmail), new Query.FilterPredicate("ownerId",
+                        FilterOperator.EQUAL, ownerId)));
 
         Query q = new Query("EmailSchedule");
         q.setFilter(filter);
@@ -124,21 +122,17 @@ public class WeatherEmailScheduleHelper {
             String recipientEmail, String zipcode) {
 
         List<Filter> filterList = Arrays.<Filter> asList(
-                new Query.FilterPredicate(
-                        "recipientEmail",
-                        FilterOperator.EQUAL,
-                        recipientEmail),
-                new Query.FilterPredicate("ownerId",
-                        FilterOperator.EQUAL, ownerId));
+                new Query.FilterPredicate("recipientEmail",
+                        FilterOperator.EQUAL, recipientEmail),
+                new Query.FilterPredicate("ownerId", FilterOperator.EQUAL,
+                        ownerId));
 
         Query q = new Query("EmailSchedule");
         Filter filter = new Query.CompositeFilter(
-                CompositeFilterOperator.AND,
-                Arrays.<Filter> asList(
-                        new Query.CompositeFilter(
-                                CompositeFilterOperator.OR, filterList),
-                        new Query.FilterPredicate("zipcode",
-                                FilterOperator.EQUAL, zipcode)));
+                CompositeFilterOperator.AND, Arrays.<Filter> asList(
+                        new Query.CompositeFilter(CompositeFilterOperator.OR,
+                                filterList), new Query.FilterPredicate(
+                                "zipcode", FilterOperator.EQUAL, zipcode)));
 
         q.setFilter(filter);
         Entity entity = datastore.prepare(q).asSingleEntity();
@@ -155,15 +149,17 @@ public class WeatherEmailScheduleHelper {
      * @param zipcode the zipcode of the schedule
      * @param timezone the timezone of the schedule
      * @param nextSend the next time to send the schedule
+     * @param weatherStatus comma-separated list of weather statuses to send
+     *            with
      * @return the newly created schedule object
      */
     public WeatherEmailSchedule putSchedule(String ownerId,
             String recipientName, String recipientEmail, String zipcode,
-            TimeZone timezone, Date nextSend) {
+            TimeZone timezone, Date nextSend, String weatherStatus) {
 
         WeatherEmailSchedule weatherEmailSchedule = new WeatherEmailSchedule(
                 ownerId, recipientName, recipientEmail, zipcode, timezone,
-                nextSend);
+                nextSend, weatherStatus);
 
         long key = putWeatherEmailSchedule(weatherEmailSchedule);
         weatherEmailSchedule.setKey(key);
@@ -200,6 +196,8 @@ public class WeatherEmailScheduleHelper {
                 .getTimezone().getID());
         emailScheduleEntity.setProperty("nextSend",
                 weatherEmailSchedule.getNextSend());
+        emailScheduleEntity.setProperty("weatherStatus",
+                weatherEmailSchedule.getWeatherStatus());
 
         datastore.put(emailScheduleEntity);
 
@@ -249,11 +247,12 @@ public class WeatherEmailScheduleHelper {
         WeatherEmailSchedule result = null;
 
         Query q = new Query("EmailSchedule");
-        Filter filter = new Query.CompositeFilter(CompositeFilterOperator.AND,
-                Arrays.<Filter> asList(
+        Filter filter = new Query.CompositeFilter(
+                CompositeFilterOperator.AND, Arrays.<Filter> asList(
                         new Query.FilterPredicate("recipientEmail",
                                 FilterOperator.EQUAL, recipientEmail),
-                        new Query.FilterPredicate(Entity.KEY_RESERVED_PROPERTY,
+                        new Query.FilterPredicate(
+                                Entity.KEY_RESERVED_PROPERTY,
                                 FilterOperator.EQUAL, deleteKey)));
 
         q.setFilter(filter);
@@ -300,8 +299,7 @@ public class WeatherEmailScheduleHelper {
      */
     public List<WeatherEmailSchedule> deleteWeatherEmailScheduleForRecipient(
             String recipientEmail) {
-        List<WeatherEmailSchedule> weatherEmailScheduleList = 
-                new ArrayList<WeatherEmailSchedule>();
+        List<WeatherEmailSchedule> weatherEmailScheduleList = new ArrayList<WeatherEmailSchedule>();
 
         Filter filter = new Query.FilterPredicate("recipientEmail",
                 FilterOperator.EQUAL, recipientEmail);
@@ -336,9 +334,10 @@ public class WeatherEmailScheduleHelper {
      * @return the list of schedules that should be sent before the input date
      */
     public List<WeatherEmailSchedule> getReadyToSend(Date beforeDate) {
-        List<WeatherEmailSchedule> weatherEmailScheduleList =
-                new ArrayList<WeatherEmailSchedule>();
+        List<WeatherEmailSchedule> weatherEmailScheduleList = new ArrayList<WeatherEmailSchedule>();
 
+        log.fine("Searching for all EmailSchedules where nextSend is <= ["
+                + beforeDate + "]");
         Filter filter = new Query.FilterPredicate("nextSend",
                 Query.FilterOperator.LESS_THAN_OR_EQUAL, beforeDate);
         Query q = new Query("EmailSchedule");
@@ -346,6 +345,8 @@ public class WeatherEmailScheduleHelper {
 
         List<Entity> results = datastore.prepare(q).asList(
                 FetchOptions.Builder.withDefaults());
+        log.fine("Got back total of # of schedules [" + results.size() + "]");
+
         for (Entity entity : results) {
             weatherEmailScheduleList
                     .add(convertEntityToWeatherEmailSchedule(entity));
@@ -371,6 +372,7 @@ public class WeatherEmailScheduleHelper {
                 (String) emailScheduleEntity.getProperty("zipcode"),
                 TimeZone.getTimeZone(timeZoneId),
                 (Date) emailScheduleEntity.getProperty("nextSend"),
+                (String) emailScheduleEntity.getProperty("weatherStatus"),
                 emailScheduleEntity.getKey().getId());
 
         return weatherEmailSchedule;

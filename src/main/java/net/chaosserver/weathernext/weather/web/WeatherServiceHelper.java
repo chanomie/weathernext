@@ -169,6 +169,7 @@ public class WeatherServiceHelper {
      *            call to make requests of the JSPs for HTML/Text content of the
      *            mail.
      * @param zipcode zipcode of the weather forecast to pull
+     * @param weatherStatusString the list of weather conditions to send
      * @param timezoneString the timezone to use when calculating "tomorrow"
      * @param skey the subscription key if available
      * @return the HTML version of the mail that was sent
@@ -176,13 +177,15 @@ public class WeatherServiceHelper {
      * @throws IOException exception grabbing the HTML/Text versions
      */
     public String sendMessage(String recipientName, String recipientEmail,
-            String webPrefix, String zipcode, String timezoneString,
-            String skey) throws MessagingException, IOException {
+            String webPrefix, String zipcode, String weatherStatusString,
+            String timezoneString, String skey) throws MessagingException,
+            IOException {
 
         TimeZone timezone = TimeZone.getTimeZone("America/Los_Angeles");
         if (timezoneString != null) {
             timezone = TimeZone.getTimeZone(timezoneString);
         }
+        WeatherData weatherData = getWeatherData(zipcode, timezone);
 
         StringBuffer parameters = new StringBuffer();
         parameters.append("zip=");
@@ -197,7 +200,6 @@ public class WeatherServiceHelper {
             parameters.append(URLEncoder.encode(skey, "UTF-8"));
         }
 
-        WeatherData weatherData = getWeatherData(zipcode, timezone);
         String htmlString = getUrlAsString(webPrefix + "/weather?"
                 + parameters.toString());
         String textString = getUrlAsString(webPrefix + "/weather/text?"
@@ -314,9 +316,52 @@ public class WeatherServiceHelper {
         bodyPart.setContent(htmlString, "text/html");
         mp.addBodyPart(bodyPart);
         msg.setContent(mp);
-        Transport.send(msg);
+
+        if (isWeatherConditionTriggered(weatherData, weatherStatusString)) {
+            Transport.send(msg);
+        }
 
         return htmlString;
+    }
+
+    protected boolean isWeatherConditionTriggered(WeatherData weatherData,
+            String weatherStatusString) {
+
+        boolean sendWeatherMail = false;
+        log.fine("Testing if we should send based on [" + weatherStatusString
+                + "]");
+        if (weatherStatusString == null || weatherStatusString == "") {
+            log.fine("Weather status string is blank, so always send.");
+            sendWeatherMail = true;
+        } else if (weatherStatusString.toLowerCase().contains(
+                weatherData.getWeatherState().toString().toLowerCase())) {
+            log.fine("Tomorrow's weather status string is "
+                    + weatherData.getWeatherState()
+                    + " and is contained in [" + weatherStatusString
+                    + "], so send.");
+
+            // "ABCDEFGHIJKLMNOP".toLowerCase().contains("gHi".toLowerCase())
+        } else {
+            for (WeatherData weatherForecastData : weatherData.getForecast()) {
+                log.fine("Testing if weatherStatusString ["
+                        + weatherStatusString + "] contains ["
+                        + weatherForecastData.getWeatherState().toString()
+                        + "]");
+                if (weatherStatusString.toLowerCase().contains(
+                        weatherForecastData.getWeatherState().toString()
+                                .toLowerCase())) {
+
+                    log.fine("Forecast weather status ["
+                            + weatherForecastData.getDay() + "] string is "
+                            + weatherForecastData.getWeatherState()
+                            + " and is contained in [" + weatherStatusString
+                            + "], so send.");
+                    sendWeatherMail = true;
+                }
+            }
+        }
+
+        return sendWeatherMail;
     }
 
     /**

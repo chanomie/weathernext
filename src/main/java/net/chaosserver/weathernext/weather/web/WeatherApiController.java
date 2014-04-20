@@ -295,6 +295,8 @@ public class WeatherApiController {
      * @param zipcode the zidcode of the new schedule
      * @param timezoneString the timezone of the user requesting the mails
      * @param sendTimeString the sendtimestring is a time as epoch time
+     * @param sendLiteralString boolean to indicate if the send time should be
+     *            taken literally instead of transposing to today's date.
      * @param principal the principal of the user
      * @return JSON of the new weather schedule
      */
@@ -304,6 +306,8 @@ public class WeatherApiController {
             @RequestParam(value = "zip", required = false) String zipcode,
             @RequestParam(value = "timezone", required = false) String timezoneString,
             @RequestParam(value = "sendTime", required = false) String sendTimeString,
+            @RequestParam(value = "sendLiteral", required = false) String sendLiteralString,
+            @RequestParam(value = "weather", required = false) String weatherStatus,
             Principal principal) {
 
         if (principal == null) {
@@ -312,31 +316,34 @@ public class WeatherApiController {
         String ownerId = userService.getCurrentUser().getUserId();
         String recipientEmail = userService.getCurrentUser().getEmail();
         String recipientName = userService.getCurrentUser().getNickname();
+        boolean sendLiteral = Boolean.parseBoolean(sendLiteralString);
 
         log.finer("Got ownerId [" + ownerId + "], recipientName ["
                 + recipientName + "], recipientEmail [" + recipientEmail
                 + "], zip [" + zipcode + "], timezone [" + timezoneString
-                + "], sendTime [" + sendTimeString + "]");
+                + "], sendTime [" + sendTimeString + "], sendLiteral ["
+                + sendLiteral + "], weatherStatus [" + weatherStatus + "]");
 
         TimeZone timezone = TimeZone.getTimeZone(timezoneString);
         Date sendTime = new Date(Long.parseLong(sendTimeString));
 
-        Calendar calender = Calendar.getInstance(timezone);
-        if (calender.getTime().after(sendTime)) {
-            Calendar newSendTime = Calendar.getInstance(timezone);
-            newSendTime.setTime(sendTime);
-            while (newSendTime.before(calender)) {
-                newSendTime.add(Calendar.DAY_OF_YEAR, 1);
-            }
+        if (!sendLiteral) {
+            Calendar calender = Calendar.getInstance(timezone);
+            if (calender.getTime().after(sendTime)) {
+                Calendar newSendTime = Calendar.getInstance(timezone);
+                newSendTime.setTime(sendTime);
+                while (newSendTime.before(calender)) {
+                    newSendTime.add(Calendar.DAY_OF_YEAR, 1);
+                }
 
-            sendTime = newSendTime.getTime();
+                sendTime = newSendTime.getTime();
+            }
         }
 
         WeatherEmailSchedule weatherEmailSchedule = weatherEmailScheduleHelper
                 .putSchedule(ownerId, recipientName, recipientEmail, zipcode,
-                        timezone, sendTime);
+                        timezone, sendTime, weatherStatus);
 
         return weatherEmailSchedule.toMap();
     }
-
 }

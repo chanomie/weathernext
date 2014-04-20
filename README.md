@@ -33,7 +33,7 @@ mvn appengine:update
 curl -d "recipientName=Jordan Reed" -d "recipientEmail=jordan.reed@gmail.com" -d "zip=93514" -d "timezone=GMT-8:00" -d "sendTime=1388023200000" -d "sendLiteral=true" http://localhost:8080/api/schedule
 curl -d "recipientName=Jordan Reed" -d "recipientEmail=jordan.reed@gmail.com" -d "zip=95608" -d "timezone=GMT-8:00" -d "sendTime=1388023200000" -d "sendLiteral=true" http://localhost:8080/api/schedule
 
-curl http://localhost:8080/api/schedule
+curl -b "dev_appserver_login=test@example.com:true:18580476422013912411" http://localhost:8080/api/schedule
 curl http://localhost:8080/api/schedule?showall=true
 curl -X DELETE "http://localhost:8080/api/schedule/jordan.reed%40gmail.com%2F95608"
 curl -d "scheduleKey=jordan.reed@gmail.com_95608" http://localhost:8080/api/schedule/delete

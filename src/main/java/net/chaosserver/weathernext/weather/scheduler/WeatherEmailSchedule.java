@@ -60,6 +60,9 @@ public class WeatherEmailSchedule implements Serializable {
     /** Last-sent. **/
     protected Date nextSend;
 
+    /** Weather status to send on. **/
+    protected String weatherStatus;
+
     /** Key. **/
     protected long key;
 
@@ -73,10 +76,11 @@ public class WeatherEmailSchedule implements Serializable {
      * @param zipcode the zipcode of the schedule
      * @param timezone the timezone of the schedule
      * @param nextSend the next date to send the message on
+     * @param weatherStatus String list of the weather status to send on
      */
     public WeatherEmailSchedule(String ownerId, String recipientName,
             String recipientEmail, String zipcode, TimeZone timezone,
-            Date nextSend) {
+            Date nextSend, String weatherStatus) {
 
         this.ownerId = ownerId;
         this.recipientName = recipientName;
@@ -84,6 +88,7 @@ public class WeatherEmailSchedule implements Serializable {
         this.zipcode = zipcode;
         this.timezone = timezone != null ? (TimeZone) timezone.clone() : null;
         this.nextSend = nextSend != null ? (Date) nextSend.clone() : null;
+        this.weatherStatus = weatherStatus;
     }
 
     /**
@@ -100,10 +105,10 @@ public class WeatherEmailSchedule implements Serializable {
      */
     public WeatherEmailSchedule(String ownerId, String recipientName,
             String recipientEmail, String zipcode, TimeZone timezone,
-            Date nextSend, long key) {
+            Date nextSend, String weatherStatus, long key) {
 
         this(ownerId, recipientName, recipientEmail, zipcode, timezone,
-                nextSend);
+                nextSend, weatherStatus);
         this.key = key;
     }
 
@@ -150,6 +155,24 @@ public class WeatherEmailSchedule implements Serializable {
      */
     public TimeZone getTimezone() {
         return this.timezone;
+    }
+
+    /**
+     * Sets the weather status as a list of CSV status.
+     * 
+     * @param weatherStatus the new value
+     */
+    public void setWeatherStatus(String weatherStatus) {
+        this.weatherStatus = weatherStatus;
+    }
+
+    /**
+     * Gets the weather status as a list of CSV status.
+     * 
+     * @return the weather status list
+     */
+    public String getWeatherStatus() {
+        return this.weatherStatus;
     }
 
     /**
@@ -218,6 +241,7 @@ public class WeatherEmailSchedule implements Serializable {
             map.put("nextSend", "");
             map.put("nextSendFormatted", "");
         }
+        map.put("weatherStatus", getWeatherStatus());
         map.put("key", String.valueOf(key));
 
         return map;

@@ -216,6 +216,7 @@ public class WeatherController {
             throw new IllegalArgumentException("Missing zip URL parameter");
         }
         String result = "weather/error";
+        String weatherStatusSendAll = null;
         UserService userService = UserServiceFactory.getUserService();
 
         if (principal == null) {
@@ -233,7 +234,7 @@ public class WeatherController {
                 htmlString = weatherServiceHelper.sendMessage(userService
                         .getCurrentUser().getNickname(), userService
                         .getCurrentUser().getEmail(), prefix, zipcode,
-                        timezoneString, skey);
+                        weatherStatusSendAll, timezoneString, skey);
 
                 result = null;
                 response.setContentType("text/html");
@@ -288,6 +289,7 @@ public class WeatherController {
                         weatherEmailSchedule.getRecipientName(),
                         weatherEmailSchedule.getRecipientEmail(), prefix,
                         weatherEmailSchedule.getZipcode(),
+                        weatherEmailSchedule.getWeatherStatus(),
                         weatherEmailSchedule.getTimezone().getID(),
                         String.valueOf(weatherEmailSchedule.getKey()));
 
@@ -296,7 +298,7 @@ public class WeatherController {
                         .putWeatherEmailSchedule(weatherEmailSchedule);
             }
 
-            result = null;
+            // result = null;
 
         } catch (IOException | MessagingException e) {
             log.log(Level.SEVERE, "Unable to query the internal URL", e);
