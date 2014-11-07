@@ -56,7 +56,8 @@ public class YahooWeatherService implements WeatherService {
 
     static {
         if (YahooWeatherService.apiKey == null) {
-            YahooWeatherService.apiKey = System.getProperty("yahooweatherkey");
+            YahooWeatherService.apiKey = System
+                    .getProperty("yahooweatherkey");
             if (YahooWeatherService.apiKey == null) {
                 throw new IllegalStateException(
                         "Failed to get yahooweatherkey from environment");
@@ -88,7 +89,8 @@ public class YahooWeatherService implements WeatherService {
      * Constructor initializes the Document Builder and XPath engine.
      */
     public YahooWeatherService() {
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory
+                .newInstance();
         try {
             dBuilder = dbFactory.newDocumentBuilder();
             xpath = XPathFactory.newInstance().newXPath();
@@ -115,8 +117,8 @@ public class YahooWeatherService implements WeatherService {
                 String yahooURLString = "http://weather.yahooapis.com/"
                         + "forecastrss?w=" + woeId;
                 URL yahooURL = new URL(yahooURLString);
-                Document doc = dBuilder.parse(new BufferedInputStream(yahooURL
-                        .openStream()));
+                Document doc = dBuilder.parse(new BufferedInputStream(
+                        yahooURL.openStream()));
 
                 double forecastNodeCount = (double) xpath.evaluate(
                         "count(//rss/channel/item/forecast)", doc,
@@ -126,20 +128,25 @@ public class YahooWeatherService implements WeatherService {
                         // <yweather:forecast day="Fri" date="27 Dec 2013"
                         // low="38" high="62" text="Sunny" code="32" />
                         String dateString = (String) xpath.evaluate(
-                                "//rss/channel/item/forecast[" + i + "]/@date",
-                                doc, XPathConstants.STRING);
-                        double low = (double) xpath.evaluate(
-                                "//rss/channel/item/forecast[" + i + "]/@low",
-                                doc, XPathConstants.NUMBER);
+                                "//rss/channel/item/forecast[" + i
+                                        + "]/@date", doc,
+                                XPathConstants.STRING);
+                        double low = (double) xpath
+                                .evaluate("//rss/channel/item/forecast[" + i
+                                        + "]/@low", doc,
+                                        XPathConstants.NUMBER);
                         double high = (double) xpath.evaluate(
-                                "//rss/channel/item/forecast[" + i + "]/@high",
-                                doc, XPathConstants.NUMBER);
+                                "//rss/channel/item/forecast[" + i
+                                        + "]/@high", doc,
+                                XPathConstants.NUMBER);
                         String description = (String) xpath.evaluate(
-                                "//rss/channel/item/forecast[" + i + "]/@text",
-                                doc, XPathConstants.STRING);
+                                "//rss/channel/item/forecast[" + i
+                                        + "]/@text", doc,
+                                XPathConstants.STRING);
                         double yahooCode = (double) xpath.evaluate(
-                                "//rss/channel/item/forecast[" + i + "]/@code",
-                                doc, XPathConstants.NUMBER);
+                                "//rss/channel/item/forecast[" + i
+                                        + "]/@code", doc,
+                                XPathConstants.NUMBER);
 
                         Date date = yahooDateFormat.parse(dateString);
 
@@ -149,15 +156,17 @@ public class YahooWeatherService implements WeatherService {
 
                         if (date.after(todayEnd)) {
                             WeatherData weatherData = new WeatherData(date,
-                                    null, weatherState, moonPhase, description,
-                                    (float) high, (float) low, null, null,
-                                    attributionString, attributionUrl);
+                                    null, weatherState, moonPhase,
+                                    description, (float) high, (float) low,
+                                    null, null, attributionString,
+                                    attributionUrl);
 
                             if (logger.isLoggable(Level.FINEST)) {
                                 logger.finest("Parsed yahooCodeInt ["
-                                        + yahooCode + "] include resultstate ["
-                                        + weatherState + "]" + " and added : "
-                                        + weatherData);
+                                        + yahooCode
+                                        + "] include resultstate ["
+                                        + weatherState + "]"
+                                        + " and added : " + weatherData);
                             }
 
                             if (result == null) {
@@ -259,8 +268,8 @@ public class YahooWeatherService implements WeatherService {
                 break;
             case 3200: // not available
             default:
-                logger.log(Level.WARNING, "Got an Unknown Yahoo Weather Code: "
-                        + yahooCodeInt);
+                logger.log(Level.WARNING,
+                        "Got an Unknown Yahoo Weather Code: " + yahooCodeInt);
                 resultState = WeatherState.UNKNOWN;
                 break;
         }

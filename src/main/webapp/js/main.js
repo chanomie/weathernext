@@ -1,9 +1,16 @@
 /**
- * Says if the zipcode should be automatically set based on the geocordinates.
+A * Says if the zipcode should be automatically set based on the geocordinates.
  * @type {boolean}
  * @private
  */
 var autosetZip = false;
+
+/** 
+ * Google Analytics account used to push actions to GA
+ * @define {string} 
+ * @private
+ */
+var googleAnalyticsAccount = 'UA-210230-4';
 
 /**
  * The default zipcode to use if nothing is available
@@ -49,11 +56,13 @@ function checkGoogleAuthSuccess(data, status) {
 		$("#schedule").click(function() {
 			buildSchedulePage();
 			$("#mainpage").slideUp('slow');
-			$("#schedulepage").slideDown('slow');			
+			$("#schedulepage").slideDown('slow');
+			trackPageView("/schedule");
 		});
 		$("#scheduleback").click(function() {
 			$("#schedulepage").slideUp('slow');
-			$("#mainpage").slideDown('slow');			
+			$("#mainpage").slideDown('slow');
+			trackPageView("/index.html");
 		});
     	googleAuth = true;
     } else {
@@ -200,6 +209,8 @@ function updateWeatheriFrame() {
 	$("#weatherframediv").
 		empty().
 		append(iframeDiv);
+	
+	trackPageView("/weather?zip=" + encodeURIComponent(zipcode));
 }
 
 /**
@@ -504,6 +515,16 @@ function getSelectBox(zip, sendTimeHour) {
 
 function consolelog(logMessage) {
 	console.log(logMessage);
+}
+
+/**
+ * Tracks a page view event.
+ * @param {string} pagename the name of the page to be tracked.
+ */
+function trackPageView(pagename) {
+	ga('send', 'pageview', {
+		  'page': pagename
+	});
 }
 
 /**

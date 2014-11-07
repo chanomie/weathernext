@@ -37,3 +37,6 @@ curl -b "dev_appserver_login=test@example.com:true:18580476422013912411" http://
 curl http://localhost:8080/api/schedule?showall=true
 curl -X DELETE "http://localhost:8080/api/schedule/jordan.reed%40gmail.com%2F95608"
 curl -d "scheduleKey=jordan.reed@gmail.com_95608" http://localhost:8080/api/schedule/delete
+
+
+curl -b "dev_appserver_login=test@example.com:true:18580476422013912411" -d "recipientName=Jordan Reed" -d "recipientEmail=test@example.com" -d "zip=94111" -d "timezone=GMT-8:00" -d "sendTime=1388023200000" -d "weather=rain,thunderstorm,snow,extreme,unknown" -d "sendLiteral=true" http://localhost:8080/api/schedule
