@@ -116,7 +116,7 @@ function startLocationLookup() {
  */
 function getLocationFromGeo(location) {
 	var latlng = location.coords.latitude + "," + location.coords.longitude,
-	    geoUrl = "http://maps.googleapis.com/maps/api/geocode/json?components=postal_code&sensor=true&latlng="
+	    geoUrl = "https://maps.googleapis.com/maps/api/geocode/json?components=postal_code&sensor=true&latlng="
 	    	+ latlng;
 
 	consolelog("Making call to : " + geoUrl);
