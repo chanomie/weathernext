@@ -60,6 +60,12 @@ public class WeatherEmailSchedule implements Serializable {
     /** Last-sent. **/
     protected Date nextSend;
 
+    /** Low Trigger. **/
+    protected String lowTrigger;
+    
+    /** High Trigger. **/
+    protected String highTrigger;
+    
     /** Weather status to send on. **/
     protected String weatherStatus;
 
@@ -76,11 +82,14 @@ public class WeatherEmailSchedule implements Serializable {
      * @param zipcode the zipcode of the schedule
      * @param timezone the timezone of the schedule
      * @param nextSend the next date to send the message on
+     * @param lowTrigger low trigger temperature
+     * @param highTrigger high trigger temperature
      * @param weatherStatus String list of the weather status to send on
      */
     public WeatherEmailSchedule(String ownerId, String recipientName,
             String recipientEmail, String zipcode, TimeZone timezone,
-            Date nextSend, String weatherStatus) {
+            Date nextSend, String lowTrigger, String highTrigger,
+            String weatherStatus) {
 
         this.ownerId = ownerId;
         this.recipientName = recipientName;
@@ -88,6 +97,8 @@ public class WeatherEmailSchedule implements Serializable {
         this.zipcode = zipcode;
         this.timezone = timezone != null ? (TimeZone) timezone.clone() : null;
         this.nextSend = nextSend != null ? (Date) nextSend.clone() : null;
+        this.lowTrigger = lowTrigger;
+        this.highTrigger = highTrigger;
         this.weatherStatus = weatherStatus;
     }
 
@@ -105,10 +116,11 @@ public class WeatherEmailSchedule implements Serializable {
      */
     public WeatherEmailSchedule(String ownerId, String recipientName,
             String recipientEmail, String zipcode, TimeZone timezone,
-            Date nextSend, String weatherStatus, long key) {
+            Date nextSend, String lowTrigger, String highTrigger, 
+            String weatherStatus, long key) {
 
         this(ownerId, recipientName, recipientEmail, zipcode, timezone,
-                nextSend, weatherStatus);
+                nextSend, lowTrigger, highTrigger, weatherStatus);
         this.key = key;
     }
 
@@ -155,6 +167,24 @@ public class WeatherEmailSchedule implements Serializable {
      */
     public TimeZone getTimezone() {
         return this.timezone;
+    }
+    
+    /**
+     * the low temp trigger for the alert
+     * 
+     * @return low temp trigger for the alert
+     */
+    public String getLowTrigger() {
+    	return this.lowTrigger;
+    }
+    
+    /**
+     * the high temp trigger for the alert
+     * 
+     * @return high temp trigger for the alert
+     */
+    public String getHighTrigger() {
+    	return this.highTrigger;
     }
 
     /**
@@ -241,6 +271,8 @@ public class WeatherEmailSchedule implements Serializable {
             map.put("nextSend", "");
             map.put("nextSendFormatted", "");
         }
+        map.put("lowTrigger", getLowTrigger());
+        map.put("highTrigger", getHighTrigger());
         map.put("weatherStatus", getWeatherStatus());
         map.put("key", String.valueOf(key));
 

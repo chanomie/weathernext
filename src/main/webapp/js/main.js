@@ -286,8 +286,26 @@ function getScheduleSuccess(data, status) {
 									)).
 					append(weatherStatusFlags).
 					append($("<div/>").
-							addClass('templevels'))
-		);				
+							addClass('templevels').
+							append($("<input/>").
+							  attr("size","5").
+							  attr("type","text").
+							  attr("placeholder","low").
+							  attr("name","low"+scheduleIndex).
+							  attr("id","low"+scheduleIndex).
+  							  addClass("centertext").
+  							  addClass("lowTrigger").
+		  					  val(data[scheduleIndex].low)).
+							append($("<input/>").
+							  attr("size","5").
+							  attr("type","text").
+							  attr("placeholder","high").
+							  attr("name","high"+scheduleIndex).
+							  attr("id","high"+scheduleIndex).
+  							  addClass("centertext").
+  							  addClass("highTrigger").
+		  					  val(data[scheduleIndex].high))
+					));
 	}
 	/*
 				    <div class="templevels">
@@ -348,6 +366,7 @@ function appendNewScheduleRow() {
 					append($("<input/>").
 						attr("size","5").
 						attr("type","text").
+						attr("placeholder","zip").
 						attr("name","newzipcode").
 						attr("id","newzipcode").
 						addClass("zipcodetext").
@@ -456,7 +475,10 @@ function updateServerSchedule(zipcode, schedule) {
 	    timezoneString = getTimezoneOffset(),
 	    selector       = "div.zipcoderow[data-zipcode='"+zipcode+"']", 
 	    scheduleDiv    = $( selector ),
-	    weatherConditionString = "";
+	    weatherConditionString = "",
+	    lowTrigger = scheduleDiv.find(".lowTrigger").first().val(),
+	    highTrigger = scheduleDiv.find(".highTrigger").first().val();
+	
 	
 	scheduleDiv.find(".weathertoggle").each(function() {
 		if($(this).attr("data-status") == "true") {
@@ -467,12 +489,13 @@ function updateServerSchedule(zipcode, schedule) {
 		}
 	});
 	
+	consolelog("Low Trigger: [" + lowTrigger + "], High Trigger [" + highTrigger + "]");
 	consolelog("Weather Conditions: [" + weatherConditionString + "]");
 	
 	$.ajax({
 		url: "/api/schedule",
 		type: "POST",
-		data: { "zip": zipcode, "timezone": timezoneString, "sendTime": scheduleTime, "weather":weatherConditionString},
+		data: { "zip": zipcode, "timezone": timezoneString, "sendTime": scheduleTime, "lowTrigger": lowTrigger, "highTrigger": highTrigger, "weather":weatherConditionString},
 		error: genericError
     });
 }

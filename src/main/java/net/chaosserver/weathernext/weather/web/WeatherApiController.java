@@ -308,6 +308,8 @@ public class WeatherApiController {
             @RequestParam(value = "sendTime", required = false) String sendTimeString,
             @RequestParam(value = "sendLiteral", required = false) String sendLiteralString,
             @RequestParam(value = "weather", required = false) String weatherStatus,
+            @RequestParam(value = "lowTrigger", required = false) String lowTrigger,
+            @RequestParam(value = "highTrigger", required = false) String highTrigger,
             Principal principal) {
 
         if (principal == null) {
@@ -322,7 +324,8 @@ public class WeatherApiController {
                 + recipientName + "], recipientEmail [" + recipientEmail
                 + "], zip [" + zipcode + "], timezone [" + timezoneString
                 + "], sendTime [" + sendTimeString + "], sendLiteral ["
-                + sendLiteral + "], weatherStatus [" + weatherStatus + "]");
+                + sendLiteral + "], lowTrigger [" + highTrigger + "], "
+                + "highTrigger [" + highTrigger + "], weatherStatus [" + weatherStatus + "]");
 
         TimeZone timezone = TimeZone.getTimeZone(timezoneString);
         Date sendTime = new Date(Long.parseLong(sendTimeString));
@@ -342,7 +345,7 @@ public class WeatherApiController {
 
         WeatherEmailSchedule weatherEmailSchedule = weatherEmailScheduleHelper
                 .putSchedule(ownerId, recipientName, recipientEmail, zipcode,
-                        timezone, sendTime, weatherStatus);
+                        timezone, sendTime, lowTrigger, highTrigger, weatherStatus);
 
         return weatherEmailSchedule.toMap();
     }

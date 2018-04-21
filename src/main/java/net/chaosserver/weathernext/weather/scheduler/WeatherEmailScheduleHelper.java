@@ -149,17 +149,20 @@ public class WeatherEmailScheduleHelper {
      * @param zipcode the zipcode of the schedule
      * @param timezone the timezone of the schedule
      * @param nextSend the next time to send the schedule
+     * @param lowTrigger the low temperature to trigger
+     * @param highTrigger the high temperature to trigger
      * @param weatherStatus comma-separated list of weather statuses to send
      *            with
      * @return the newly created schedule object
      */
     public WeatherEmailSchedule putSchedule(String ownerId,
             String recipientName, String recipientEmail, String zipcode,
-            TimeZone timezone, Date nextSend, String weatherStatus) {
+            TimeZone timezone, Date nextSend, String lowTrigger,
+            String highTrigger, String weatherStatus) {
 
         WeatherEmailSchedule weatherEmailSchedule = new WeatherEmailSchedule(
                 ownerId, recipientName, recipientEmail, zipcode, timezone,
-                nextSend, weatherStatus);
+                nextSend, lowTrigger, highTrigger, weatherStatus);
 
         long key = putWeatherEmailSchedule(weatherEmailSchedule);
         weatherEmailSchedule.setKey(key);
@@ -372,6 +375,8 @@ public class WeatherEmailScheduleHelper {
                 (String) emailScheduleEntity.getProperty("zipcode"),
                 TimeZone.getTimeZone(timeZoneId),
                 (Date) emailScheduleEntity.getProperty("nextSend"),
+                (String) emailScheduleEntity.getProperty("lowTrigger"),
+                (String) emailScheduleEntity.getProperty("highTrigger"),
                 (String) emailScheduleEntity.getProperty("weatherStatus"),
                 emailScheduleEntity.getKey().getId());
 
