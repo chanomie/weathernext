@@ -75,7 +75,7 @@ public class ForecastIoWeatherService implements WeatherService {
     protected String attributionString = "Powered by Forecast";
 
     /** Attribute URL. */
-    protected String attributionUrl = "http://forecast.io/";
+    protected String attributionUrl = "https://darksky.net";
 
     /**
      * Creates the services and provides a zipcode lookup class.
@@ -100,7 +100,7 @@ public class ForecastIoWeatherService implements WeatherService {
 
             try {
 
-                String forecastURLString = "https://api.forecast.io/forecast/"
+                String forecastURLString = "https://api.darksky.net/forecast/"
                         + apiKey
                         + "/"
                         + geoCoord.getLatitude()

@@ -10,7 +10,7 @@ import org.junit.Test;
 
 public class ForecastIoWeatherServiceTest {
     @Test
-    public void textYahooWeatherService() throws Exception {
+    public void testForecastWeatherService() throws Exception {
         ForecastIoWeatherService forecastIoWeatherService = new ForecastIoWeatherService(
                 new ZipCodeLookup());
 
