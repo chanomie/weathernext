@@ -295,7 +295,7 @@ function getScheduleSuccess(data, status) {
 							  attr("id","low"+scheduleIndex).
   							  addClass("centertext").
   							  addClass("lowTrigger").
-		  					  val(data[scheduleIndex].low)).
+		  					  val(data[scheduleIndex].lowTrigger)).
 							append($("<input/>").
 							  attr("size","5").
 							  attr("type","text").
@@ -304,7 +304,7 @@ function getScheduleSuccess(data, status) {
 							  attr("id","high"+scheduleIndex).
   							  addClass("centertext").
   							  addClass("highTrigger").
-		  					  val(data[scheduleIndex].high))
+		  					  val(data[scheduleIndex].highTrigger))
 					));
 	}
 	/*
@@ -319,6 +319,8 @@ function getScheduleSuccess(data, status) {
 	$(".deleteSchedule").click(deleteSchedule);
 	$(".timeSelect").change(updateSchedule);
 	$(".weathertoggle").click(toggleWeather);
+	$(".lowTrigger").blur(updateLowHighTemp);
+	$(".highTrigger").blur(updateLowHighTemp);
 }
 
 function getweatherStatusFlags(weatherStatusString) {
@@ -451,6 +453,13 @@ function updateSchedule() {
 	} else {
 		consolelog("don't update on new entry")
 	}
+}
+
+function updateLowHighTemp() {
+ 	var zipcode = $(this).closest("div.zipcoderow").find(".zipcodetext").val(),
+        schedule = $(this).closest("div.zipcoderow").find(".timeSelect").val();
+        
+    updateServerSchedule(zipcode,schedule);
 }
 
 function toggleWeather() {

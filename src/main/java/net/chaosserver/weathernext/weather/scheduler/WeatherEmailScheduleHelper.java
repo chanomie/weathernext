@@ -201,6 +201,10 @@ public class WeatherEmailScheduleHelper {
                 weatherEmailSchedule.getNextSend());
         emailScheduleEntity.setProperty("weatherStatus",
                 weatherEmailSchedule.getWeatherStatus());
+        emailScheduleEntity.setProperty("highTrigger",
+                weatherEmailSchedule.getHighTrigger());
+        emailScheduleEntity.setProperty("lowTrigger",
+                weatherEmailSchedule.getLowTrigger());
 
         datastore.put(emailScheduleEntity);
 
