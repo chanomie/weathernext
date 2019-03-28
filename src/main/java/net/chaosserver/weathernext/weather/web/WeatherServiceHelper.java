@@ -178,8 +178,9 @@ public class WeatherServiceHelper {
      */
     public String sendMessage(String recipientName, String recipientEmail,
             String webPrefix, String zipcode, String weatherStatusString,
-            String timezoneString, String skey) throws MessagingException,
-            IOException {
+            String highTrigger, String lowTrigger, String timezoneString,
+            String skey)
+            throws MessagingException, IOException {
 
         TimeZone timezone = TimeZone.getTimeZone("America/Los_Angeles");
         if (timezoneString != null) {
@@ -317,7 +318,8 @@ public class WeatherServiceHelper {
         mp.addBodyPart(bodyPart);
         msg.setContent(mp);
 
-        if (isWeatherConditionTriggered(weatherData, weatherStatusString)) {
+        if (isWeatherConditionTriggered(weatherData, weatherStatusString)
+        		|| isWeatherTempuratureTriggered(weatherData, highTrigger, lowTrigger)) {
             Transport.send(msg);
         }
 
@@ -335,12 +337,14 @@ public class WeatherServiceHelper {
             sendWeatherMail = true;
         } else if (weatherStatusString.toLowerCase().contains(
                 weatherData.getWeatherState().toString().toLowerCase())) {
+        	        	
             log.fine("Tomorrow's weather status string is "
                     + weatherData.getWeatherState()
                     + " and is contained in [" + weatherStatusString
                     + "], so send.");
 
             // "ABCDEFGHIJKLMNOP".toLowerCase().contains("gHi".toLowerCase())
+            sendWeatherMail = true;
         } else {
             for (WeatherData weatherForecastData : weatherData.getForecast()) {
                 log.fine("Testing if weatherStatusString ["
@@ -364,6 +368,56 @@ public class WeatherServiceHelper {
         return sendWeatherMail;
     }
 
+    /**
+     * Checks if the high/low trigger in the scheduler is less than high/low
+     * for tomorrow or for the forecast.
+     * 
+     * @param weatherData The data for upcoming weather.
+     * @param highTrigger The trigger for if it's higher
+     * @param lowTrigger The trigger for lower
+     * @return indicator if the conditions are met and mail should send
+     */
+    protected boolean isWeatherTempuratureTriggered(WeatherData weatherData,
+            String highTrigger, String lowTrigger) {
+    	
+    	boolean sendWeatherMail = false;
+    	if(highTrigger != null) {
+    		try {
+    		    float highTriggerFloat = Float.parseFloat(highTrigger);
+    		    if (highTriggerFloat <= weatherData.getHighTempurature()) {
+    			    sendWeatherMail = true;
+                } else {
+                    for (WeatherData weatherForecastData : weatherData.getForecast()) {
+            		    if (highTriggerFloat <= weatherForecastData.getHighTempurature()) {
+            			    sendWeatherMail = true;
+            		    }
+            		
+                    }
+    		    }
+    		} catch (NumberFormatException e) {
+    			// not number
+    		}
+    	}
+    	if(sendWeatherMail == false && lowTrigger != null) {
+    		try {
+    		    float lowTriggerFloat = Float.parseFloat(lowTrigger);
+    		    if (lowTriggerFloat >= weatherData.getLowTempurature()) {
+        			sendWeatherMail = true;
+        		} else {
+                    for (WeatherData weatherForecastData : weatherData.getForecast()) {
+                		if (lowTriggerFloat >= weatherForecastData.getLowTempurature()) {
+            	    		sendWeatherMail = true;
+            		    }
+                    }
+    		    }
+    		} catch (NumberFormatException e) {
+    			// not number
+    		}
+    	}
+
+    	
+    	return sendWeatherMail;
+    }
     /**
      * Requests a URL and then returns the content of the response as a string.
      * Used internally to grab the HTML and Text versions as a String.

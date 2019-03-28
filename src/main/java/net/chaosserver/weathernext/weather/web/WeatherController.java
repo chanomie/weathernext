@@ -217,6 +217,8 @@ public class WeatherController {
         }
         String result = "weather/error";
         String weatherStatusSendAll = null;
+        String highTrigger = null;
+        String lowTrigger = null;
         UserService userService = UserServiceFactory.getUserService();
 
         if (principal == null) {
@@ -234,7 +236,8 @@ public class WeatherController {
                 htmlString = weatherServiceHelper.sendMessage(userService
                         .getCurrentUser().getNickname(), userService
                         .getCurrentUser().getEmail(), prefix, zipcode,
-                        weatherStatusSendAll, timezoneString, skey);
+                        weatherStatusSendAll, highTrigger, lowTrigger, 
+                        timezoneString, skey);
 
                 result = null;
                 response.setContentType("text/html");
@@ -290,6 +293,8 @@ public class WeatherController {
                         weatherEmailSchedule.getRecipientEmail(), prefix,
                         weatherEmailSchedule.getZipcode(),
                         weatherEmailSchedule.getWeatherStatus(),
+                        weatherEmailSchedule.getHighTrigger(),
+                        weatherEmailSchedule.getLowTrigger(),
                         weatherEmailSchedule.getTimezone().getID(),
                         String.valueOf(weatherEmailSchedule.getKey()));
 

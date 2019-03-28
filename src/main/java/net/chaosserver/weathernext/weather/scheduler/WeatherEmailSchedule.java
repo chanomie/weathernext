@@ -97,8 +97,18 @@ public class WeatherEmailSchedule implements Serializable {
         this.zipcode = zipcode;
         this.timezone = timezone != null ? (TimeZone) timezone.clone() : null;
         this.nextSend = nextSend != null ? (Date) nextSend.clone() : null;
-        this.lowTrigger = lowTrigger;
-        this.highTrigger = highTrigger;
+        try {
+        	Integer.parseInt(lowTrigger);
+        	this.lowTrigger = lowTrigger;
+        } catch (NumberFormatException e) {
+        	// yum
+        }
+        try {
+        	Integer.parseInt(highTrigger);
+        	this.highTrigger = highTrigger;
+        } catch (NumberFormatException e) {
+        	// yum
+        }
         this.weatherStatus = weatherStatus;
     }
 

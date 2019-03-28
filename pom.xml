@@ -25,7 +25,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>net.chaosserver.weathernext</groupId>
   <artifactId>weathernext</artifactId>
-  <version>1.0.1</version>
+  <version>1.1.0</version>
   <packaging>war</packaging>
   <!-- More Project Information -->
   <name>Weather.Next</name>
@@ -43,7 +43,7 @@
     <developer>
       <id>jordan.reed</id>
       <name>Jordan</name>
-      <url>https://plus.google.com/u/0/+JordanReed</url>
+      <url>https://github.com/chanomie</url>
       <organization>Chaos Corporation</organization>
       <roles>
         <role>architect</role>
@@ -53,14 +53,14 @@
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:https://code.google.com/p/weathernext/</connection>
-    <developerConnection>scm:git:https://code.google.com/p/weathernext/</developerConnection>
+    <connection>scm:git:https://github.com/chanomie/weathernext.git</connection>
+    <developerConnection>scm:git:https://github.com/chanomie/weathernext.git</developerConnection>
     <tag>HEAD</tag>
-    <url>http://https://code.google.com/p/weathernext/source/browse/</url>
+    <url>https://github.com/chanomie/weathernext</url>
   </scm>
   <issueManagement>
-    <system>Bugzilla</system>
-    <url>https://code.google.com/p/weathernext/issues</url>
+    <system>Github Issues</system>
+    <url>https://github.com/chanomie/weathernext/issues</url>
   </issueManagement>
   <properties>
     <appengine.app.version>1</appengine.app.version>
