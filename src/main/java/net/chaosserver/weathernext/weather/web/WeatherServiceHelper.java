@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,6 +48,8 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import net.chaosserver.weathernext.weather.TriggerReason;
+import net.chaosserver.weathernext.weather.TriggerReasons;
 import net.chaosserver.weathernext.weather.WeatherData;
 import net.chaosserver.weathernext.weather.WeatherService;
 import net.chaosserver.weathernext.weather.services.ForecastIoWeatherService;
@@ -54,6 +57,8 @@ import net.chaosserver.weathernext.weather.services.YahooWeatherService;
 import net.chaosserver.weathernext.zipcode.LocationData;
 import net.chaosserver.weathernext.zipcode.ZipCodeLookup;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.memcache.stdimpl.GCacheFactory;
 
 /**
@@ -96,6 +101,13 @@ public class WeatherServiceHelper {
 
     /** Holds a cache of weather data objects. */
     protected Cache weatherDataCache;
+    
+    /** Holds a cache of trigger reason objects. */
+    protected Cache triggerReasonsCache;
+    
+    /** Random number generate for trigger ids. */
+    protected Random random = new Random(); 
+
 
     /**
      * Generates a new WeatherService Helper. This contains internally cache
@@ -113,6 +125,7 @@ public class WeatherServiceHelper {
             // timezone
             cacheProperties.put(GCacheFactory.EXPIRATION_DELTA, CACHE_EXPIRE);
             weatherDataCache = cacheFactory.createCache(cacheProperties);
+            triggerReasonsCache = cacheFactory.createCache(cacheProperties);
         } catch (CacheException e) {
             log.log(Level.WARNING, "Failed to initialize the cache.", e);
         }
@@ -159,6 +172,17 @@ public class WeatherServiceHelper {
 
         return weatherData;
     }
+    
+    /**
+     * Returns the trigger reasons associated with an id.  Currently lazily
+     * stores this in MEMCHACHE, but should use a DataStore backend.
+     * 
+     * @param triggerReasonsId reason id.
+     * @return the reason associated or null.
+     */
+    public TriggerReasons getTriggerReasons(String triggerReasonsId) {
+    	return (TriggerReasons) triggerReasonsCache.get(triggerReasonsId);
+    }
 
     /**
      * Sends an email message using the Mail Services to the recipient.
@@ -176,7 +200,188 @@ public class WeatherServiceHelper {
      * @throws MessagingException exception sending the message
      * @throws IOException exception grabbing the HTML/Text versions
      */
-    public String sendMessage(String recipientName, String recipientEmail,
+    @SuppressWarnings("unchecked")
+	public String sendMessage(String recipientName, String recipientEmail,
+            String webPrefix, String zipcode, String weatherStatusString,
+            String highTrigger, String lowTrigger, String timezoneString,
+            String skey)
+            throws MessagingException, IOException {
+
+        TimeZone timezone = TimeZone.getTimeZone("America/Los_Angeles");
+        if (timezoneString != null) {
+            timezone = TimeZone.getTimeZone(timezoneString);
+        }
+        WeatherData weatherData = getWeatherData(zipcode, timezone);
+
+        TriggerReasons triggerReasons = new TriggerReasons(String.valueOf(random.nextInt()));
+        if (isWeatherConditionTriggered(weatherData, weatherStatusString, triggerReasons)
+        		|| isWeatherTempuratureTriggered(weatherData, highTrigger, lowTrigger, triggerReasons)) {
+
+        	log.info("Added a new trigger reason with id [" + triggerReasons.getTriggerReasonsId() + "]");
+        	triggerReasonsCache.put(triggerReasons.getTriggerReasonsId(), triggerReasons);
+        } else {
+        	triggerReasons = null;
+        }
+        
+        
+        StringBuffer parameters = new StringBuffer();
+        parameters.append("zip=");
+        parameters.append(URLEncoder.encode(zipcode, "UTF-8"));
+        parameters.append("&emailformat=true");
+        if (timezoneString != null) {
+            parameters.append("&timezone=");
+            parameters.append(URLEncoder.encode(timezoneString, "UTF-8"));
+        }
+        if (skey != null) {
+            parameters.append("&skey=");
+            parameters.append(URLEncoder.encode(skey, "UTF-8"));
+        }
+        if(triggerReasons != null) {
+        	parameters.append("&triggerReasonId=");
+        	parameters.append(triggerReasons.getTriggerReasonsId());
+        }
+
+        String htmlString = getUrlAsString(webPrefix + "/weather?"
+                + parameters.toString());
+        String textString = getUrlAsString(webPrefix + "/weather/text?"
+                + parameters.toString());
+
+        StringBuffer subject = new StringBuffer();
+        String weatherStateIcon = "\uD83D\uDCA3";
+        switch (weatherData.getWeatherState()) {
+            case CLEAR:
+                weatherStateIcon = "\u2600"; // 9728
+                break;
+            case CLOUDS:
+                weatherStateIcon = "\u2601"; // 9729
+                break;
+            case RAIN:
+                weatherStateIcon = "\u2614"; // 9748
+                break;
+            case THUNDERSTORM:
+                weatherStateIcon = "\u26A1"; // 9889
+                break;
+            case DRIZZLE:
+                weatherStateIcon = "\u2602"; // 9730
+                break;
+            case SNOW:
+                weatherStateIcon = "\u2603"; // 9731
+                break;
+            case ATMOSPHERE:
+                weatherStateIcon = "\u2668"; // 9832
+                break;
+            case EXTREME:
+                weatherStateIcon = "\uD83C\uDF0B"; // 127755
+                break;
+            default:
+                weatherStateIcon = "\uD83D\uDCA3"; // 128163
+                break;
+        }
+        String moonIcon = null;
+        if (weatherData.getMoonPhase() != null) {
+            switch (weatherData.getMoonPhase()) {
+                case FULL:
+                    moonIcon = "\uD83C\uDF15";
+                    break;
+                case WAXING_GIBBOUS:
+                    moonIcon = "\uD83C\uDF14";
+                    break;
+                case FIRST_QUARTER:
+                    moonIcon = "\uD83C\uDF13";
+                    break;
+                case WAXING_CRESCENT:
+                    moonIcon = "\uD83C\uDF12";
+                    break;
+                case NEW:
+                    moonIcon = "\uD83C\uDF11";
+                    break;
+                case WANING_CRESCENT:
+                    moonIcon = "\uD83C\uDF18";
+                    break;
+                case THIRD_QUARTER:
+                    moonIcon = "\uD83C\uDF17";
+                    break;
+                case WANING_GIBBOUS:
+                    moonIcon = "\uD83C\uDF16";
+                    break;
+                default:
+                    moonIcon = null;
+                    break;
+            }
+        }
+
+        MimeMessage msg = new MimeMessage(mailSession);
+
+        if (moonIcon == null) {
+            msg.setFrom(new InternetAddress(
+                    "weathernext@weathernext.appspotmail.com",
+                    weatherStateIcon + " " + "Weather.Next", "UTF-8"));
+        } else {
+            msg.setFrom(new InternetAddress(
+                    "weathernext@weathernext.appspotmail.com",
+                    weatherStateIcon + " " + moonIcon + " " + "Weather.Next",
+                    "UTF-8"));
+
+            msg.setSubject(
+                    weatherStateIcon + " " + moonIcon + " "
+                            + subject.toString(), "UTF-8");
+        }
+
+        msg.addRecipient(Message.RecipientType.TO, new InternetAddress(
+                recipientEmail, recipientName));
+
+        subject.append(weatherData.getLocationName());
+        subject.append(" ");
+        subject.append(SUBJECT_DATE_FORMAT.format(weatherData.getDay()));
+        subject.append(", H");
+        subject.append(Math.round(weatherData.getHighTempurature()));
+        subject.append(", L");
+        subject.append(Math.round(weatherData.getLowTempurature()));
+        msg.setSubject(subject.toString());
+
+        /*
+         * Emoji was making the subject too long, moving into the From field.
+         * @formatter:off if (moonIcon == null) {
+         * msg.setSubject(weatherStateIcon + " " + subject.toString(), "UTF-8");
+         * } else { msg.setSubject( weatherStateIcon + " " + moonIcon + " " +
+         * subject.toString(), "UTF-8"); }
+         * @formatter:on
+         */
+        Multipart mp = new MimeMultipart();
+
+        MimeBodyPart bodyPart = new MimeBodyPart();
+        bodyPart.setContent(textString, "text/plain");
+        mp.addBodyPart(bodyPart);
+
+        bodyPart = new MimeBodyPart();
+        bodyPart.setContent(htmlString, "text/html");
+        mp.addBodyPart(bodyPart);
+        msg.setContent(mp);
+
+        if(triggerReasons != null) {
+        	Transport.send(msg);
+        }
+
+        return htmlString;
+    }
+
+    /**
+     * Sends an email message using the Mail Services to the recipient.
+     * 
+     * @param recipientName the friendly name of the person receiving the mail
+     * @param recipientEmail the email address to send to
+     * @param webPrefix prefix of where the site is being hosted at to allow the
+     *            call to make requests of the JSPs for HTML/Text content of the
+     *            mail.
+     * @param zipcode zipcode of the weather forecast to pull
+     * @param weatherStatusString the list of weather conditions to send
+     * @param timezoneString the timezone to use when calculating "tomorrow"
+     * @param skey the subscription key if available
+     * @return the HTML version of the mail that was sent
+     * @throws MessagingException exception sending the message
+     * @throws IOException exception grabbing the HTML/Text versions
+     */
+    public MimeMessage generateMessage(String recipientName, String recipientEmail,
             String webPrefix, String zipcode, String weatherStatusString,
             String highTrigger, String lowTrigger, String timezoneString,
             String skey)
@@ -318,17 +523,11 @@ public class WeatherServiceHelper {
         mp.addBodyPart(bodyPart);
         msg.setContent(mp);
 
-        if (isWeatherConditionTriggered(weatherData, weatherStatusString)
-        		|| isWeatherTempuratureTriggered(weatherData, highTrigger, lowTrigger)) {
-            Transport.send(msg);
-        }
-
-        return htmlString;
+        return msg;
     }
-
     protected boolean isWeatherConditionTriggered(WeatherData weatherData,
-            String weatherStatusString) {
-
+            String weatherStatusString, TriggerReasons triggerReasons) {
+    	
         boolean sendWeatherMail = false;
         log.fine("Testing if we should send based on [" + weatherStatusString
                 + "]");
@@ -342,6 +541,10 @@ public class WeatherServiceHelper {
                     + weatherData.getWeatherState()
                     + " and is contained in [" + weatherStatusString
                     + "], so send.");
+            
+            triggerReasons.addTriggerReason(new TriggerReason(
+            		weatherData.getDay(), "Trigger for status " 
+            				+ weatherData.getWeatherState()));
 
             // "ABCDEFGHIJKLMNOP".toLowerCase().contains("gHi".toLowerCase())
             sendWeatherMail = true;
@@ -360,6 +563,10 @@ public class WeatherServiceHelper {
                             + weatherForecastData.getWeatherState()
                             + " and is contained in [" + weatherStatusString
                             + "], so send.");
+                    
+                    triggerReasons.addTriggerReason(new TriggerReason(
+                    		weatherForecastData.getDay(), "Trigger for status " 
+                    				+ weatherForecastData.getWeatherState()));                    
                     sendWeatherMail = true;
                 }
             }
@@ -378,17 +585,25 @@ public class WeatherServiceHelper {
      * @return indicator if the conditions are met and mail should send
      */
     protected boolean isWeatherTempuratureTriggered(WeatherData weatherData,
-            String highTrigger, String lowTrigger) {
+            String highTrigger, String lowTrigger, TriggerReasons triggerReasons) {
     	
     	boolean sendWeatherMail = false;
     	if(highTrigger != null) {
     		try {
     		    float highTriggerFloat = Float.parseFloat(highTrigger);
     		    if (highTriggerFloat <= weatherData.getHighTempurature()) {
+    		    	triggerReasons.addTriggerReason(
+    		    		new TriggerReason(weatherData.getDay(),
+    		    			"High Tempurature of [" + weatherData.getHighTempurature()
+    		    			+ "] exceeds trigger [" + highTriggerFloat + "]"));
     			    sendWeatherMail = true;
                 } else {
                     for (WeatherData weatherForecastData : weatherData.getForecast()) {
             		    if (highTriggerFloat <= weatherForecastData.getHighTempurature()) {
+            		    	triggerReasons.addTriggerReason(
+                		    		new TriggerReason(weatherForecastData.getDay(),
+                		    			"High Tempurature of [" + weatherForecastData.getHighTempurature()
+                		    			+ "] exceeds trigger [" + highTriggerFloat + "]"));
             			    sendWeatherMail = true;
             		    }
             		
@@ -402,10 +617,18 @@ public class WeatherServiceHelper {
     		try {
     		    float lowTriggerFloat = Float.parseFloat(lowTrigger);
     		    if (lowTriggerFloat >= weatherData.getLowTempurature()) {
+    		    	triggerReasons.addTriggerReason(
+        		    		new TriggerReason(weatherData.getDay(),
+        		    			"Low Tempurature of [" + weatherData.getLowTempurature()
+        		    			+ "] below trigger [" + lowTriggerFloat + "]"));
         			sendWeatherMail = true;
         		} else {
                     for (WeatherData weatherForecastData : weatherData.getForecast()) {
                 		if (lowTriggerFloat >= weatherForecastData.getLowTempurature()) {
+            		    	triggerReasons.addTriggerReason(
+                		    		new TriggerReason(weatherForecastData.getDay(),
+                		    			"Low Tempurature of [" + weatherForecastData.getLowTempurature()
+                		    			+ "] below trigger [" + lowTriggerFloat + "]"));
             	    		sendWeatherMail = true;
             		    }
                     }

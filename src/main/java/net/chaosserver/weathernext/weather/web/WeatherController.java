@@ -34,6 +34,7 @@ import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.chaosserver.weathernext.weather.TriggerReasons;
 import net.chaosserver.weathernext.weather.WeatherData;
 import net.chaosserver.weathernext.weather.scheduler.WeatherEmailSchedule;
 import net.chaosserver.weathernext.weather.scheduler.WeatherEmailScheduleHelper;
@@ -100,6 +101,7 @@ public class WeatherController {
             @RequestParam(value = "timezone", required = false) String timezoneString,
             @RequestParam(value = "skey", required = false) String skey,
             @RequestParam(value = "emailformat", required = false) String emailformat,
+            @RequestParam(value = "triggerReasonId", required = false) String triggerReasonId,
             HttpServletRequest request, Model model) {
 
         try {
@@ -119,6 +121,12 @@ public class WeatherController {
             }
             WeatherData weatherData = weatherServiceHelper.getWeatherData(
                     zipcode, timezone);
+            
+            TriggerReasons triggerReasons = null;
+            if(triggerReasonId != null) {
+            	triggerReasons = weatherServiceHelper.getTriggerReasons(triggerReasonId);
+            }
+            
             String prefix = getRootUrl(request);
 
             String description = weatherData.getWeatherDescription();
@@ -136,6 +144,7 @@ public class WeatherController {
             model.addAttribute("prefix", prefix);
             model.addAttribute("skey", skey);
             model.addAttribute("emailformat", emailformatBoolean);
+            model.addAttribute("triggerReasons", triggerReasons);
 
             return "weather/weather";
         } catch (Exception e) {
@@ -157,6 +166,7 @@ public class WeatherController {
     public String getText(
             @RequestParam(value = "zip", required = false) String zipcode,
             @RequestParam(value = "timezone", required = false) String timezoneString,
+            @RequestParam(value = "triggerReasonId", required = false) String triggerReasonId,            
             HttpServletRequest request, HttpServletResponse response,
             Model model) {
 
@@ -166,9 +176,15 @@ public class WeatherController {
         }
         WeatherData weatherData = weatherServiceHelper.getWeatherData(
                 zipcode, timezone);
+        TriggerReasons triggerReasons = null;
+        if(triggerReasonId != null) {
+        	triggerReasons = weatherServiceHelper.getTriggerReasons(triggerReasonId);
+        }
+        
         response.setContentType("text/plain");
         model.addAttribute("weatherData", weatherData);
         model.addAttribute("timezone", timezone);
+        model.addAttribute("triggerReasons", triggerReasons);        
 
         return "weather/text";
     }
