@@ -4,7 +4,7 @@
     <version>${appengine.app.version}</version>
     <runtime>java8</runtime>
     <threadsafe>true</threadsafe>
-    <sessions-enabled>false</sessions-enabled>
+    <sessions-enabled>true</sessions-enabled>
 	<url-stream-handler>urlfetch</url-stream-handler>    
 
     <system-properties>

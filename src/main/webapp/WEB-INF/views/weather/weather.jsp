@@ -216,9 +216,17 @@
 				  <c:if test="${not empty skey}">
 				    <a style="color: white !important;" href="<c:out value="${prefix}"/>/weather/unsubscribe/<c:out value="${skey}"/>">Unsubscribe</a>
 				  </c:if>
-
 				</td>
 			</tr>
+			<c:if test="${not empty triggerReasons}">
+				<tr>
+				    <td colspan="2" style="text-align:right; padding-right: 5px;">
+				      <c:forEach var="triggerReason" items='${triggerReasons.triggerReasons}'>
+				      	<p><fmt:formatDate pattern="EEEEEE, MMMM dd" value="${triggerReason.triggerDate}" /> - <c:out value="${triggerReason.triggerReason}"/></p>
+				      </c:forEach>
+				    </td>
+				</tr>
+			</c:if>
 		</table>
 	</body>
 </html>

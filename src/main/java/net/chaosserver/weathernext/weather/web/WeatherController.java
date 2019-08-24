@@ -113,7 +113,8 @@ public class WeatherController {
             log.fine("/weather URL Inputs zip=[" + zipcode + "], timezone=["
                     + timezoneString + "], skey=[" + skey
                     + "], emailformat=[" + emailformat
-                    + "], emailformatBoolean=[" + emailformatBoolean + "]");
+                    + "], emailformatBoolean=[" + emailformatBoolean +
+                    "], triggerReasonId=[" + triggerReasonId + "]");
 
             TimeZone timezone = TimeZone.getTimeZone("America/Los_Angeles");
             if (timezoneString != null) {
@@ -125,6 +126,9 @@ public class WeatherController {
             TriggerReasons triggerReasons = null;
             if(triggerReasonId != null) {
             	triggerReasons = weatherServiceHelper.getTriggerReasons(triggerReasonId);
+            	log.fine("Got back trigger reasons: " + triggerReasons);
+            } else {
+            	log.fine("Got back empty trigger reasons.");
             }
             
             String prefix = getRootUrl(request);
@@ -277,6 +281,48 @@ public class WeatherController {
 
         return result;
     }
+    
+    /**
+     * For testing purposes triggers all the emails scheduled for the logged in user
+     * regardless if they need to be sent or not.
+     */
+    @RequestMapping(value = "/scheduled/me", method = RequestMethod.GET)
+    public String scheduledemailme(HttpServletRequest request,
+            Principal principal) {
+    
+    	String result = "weather/error";
+    	UserService userService = UserServiceFactory.getUserService();
+    	
+    	String prefix = getRootUrl(request);
+        String recipientEmail = userService.getCurrentUser().getEmail();
+        String ownerId = userService.getCurrentUser().getUserId();
+    	
+        List<WeatherEmailSchedule> weatherEmailScheduleList = weatherEmailScheduleHelper
+                .getWeatherEmailSchedule(ownerId, recipientEmail);
+
+        log.log(Level.INFO, "Got back a list of scheduled triggers of size: "
+        		+ weatherEmailScheduleList.size());
+
+        try {
+	        for (WeatherEmailSchedule weatherEmailSchedule : weatherEmailScheduleList) {
+	            weatherServiceHelper.sendMessage(
+	                    weatherEmailSchedule.getRecipientName(),
+	                    weatherEmailSchedule.getRecipientEmail(), prefix,
+	                    weatherEmailSchedule.getZipcode(),
+	                    weatherEmailSchedule.getWeatherStatus(),
+	                    weatherEmailSchedule.getHighTrigger(),
+	                    weatherEmailSchedule.getLowTrigger(),
+	                    weatherEmailSchedule.getTimezone().getID(),
+	                    String.valueOf(weatherEmailSchedule.getKey()));
+	
+	            weatherEmailSchedule.sendNow();
+	        }
+	    } catch (IOException | MessagingException e) {
+	        log.log(Level.SEVERE, "Unable to query the internal URL", e);
+	    }
+                
+    	return result;
+    }
 
     /**
      * Triggers all the scheduled email in the system. It will loop through all
@@ -302,6 +348,9 @@ public class WeatherController {
 
             List<WeatherEmailSchedule> weatherEmailScheduleList = weatherEmailScheduleHelper
                     .getReadyToSend();
+            
+            log.log(Level.INFO, "Got back a list of scheduled triggers of size: "
+            		+ weatherEmailScheduleList.size());
 
             for (WeatherEmailSchedule weatherEmailSchedule : weatherEmailScheduleList) {
                 weatherServiceHelper.sendMessage(

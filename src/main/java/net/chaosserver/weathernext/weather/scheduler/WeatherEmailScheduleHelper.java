@@ -77,8 +77,8 @@ public class WeatherEmailScheduleHelper {
     }
 
     /**
-     * Gets the weather schedule email for a specific user and zipcode
-     * combination. This should always be a single unique schedule or null.
+     * Gets the weather schedule entity if one matches. It will check for all
+     * schedules that either match the ownerId or the recipient email.
      * 
      * @param ownerId the unique identifier of the owner.
      * @param recipientEmail the recipient email of the list
@@ -109,8 +109,8 @@ public class WeatherEmailScheduleHelper {
     }
 
     /**
-     * Gets the weather schedule entity if one matches. It will check for all
-     * schedules that either match the ownerId or the recipient email.
+     * Gets the weather schedule email for a specific user and zipcode
+     * combination. This should always be a single unique schedule or null.
      * 
      * @param ownerId the unique identifier of the owner.
      * @param recipientEmail the recipient email of the list

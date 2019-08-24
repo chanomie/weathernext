@@ -16,11 +16,24 @@ http://weathernext.appspot.com
 The system uses Forecast.io and needs to include the key in the build.  It attempts
 to read it from the environment variable "forecastkey".
 
+You may need to set your Java version to 1.8
+
+
 ```
 export forecastkey=<yourkey>
-export JAVA_HOME=`/usr/libexec/java_home -v 1.7`
+export JAVA_HOME=`/usr/libexec/java_home -v 1.8`
 mvn verify - verify the build
 mvn appengine:devserver - run the dev server
 mvn eclipse:eclipse
 mvn appengine:update
 ```
+
+## Testing
+You can test a trigger logged in as admin by requesting:
+* http://localhost:9080/weather/scheduled
+
+## Testing a specific weather trigger id:
+http://localhost:9080/weather?zip=95608&timezone=GMT-7%3A00&triggerReasonId=687024894
+
+You can trigger the current users schedules at
+* http://localhost:9080/weather/scheduled/me
