@@ -599,7 +599,7 @@ public class WeatherServiceHelper {
     		    	triggerReasons.addTriggerReason(
     		    		new TriggerReason(weatherData.getDay(),
     		    			"High of " + weatherData.getHighTempurature()
-    		    			+ "° exceeds " + highTriggerFloat + "°"));
+    		    			+ "&deg; exceeds " + highTriggerFloat + "&deg;"));
     			    sendWeatherMail = true;
                 } else {
                     for (WeatherData weatherForecastData : weatherData.getForecast()) {
@@ -607,7 +607,7 @@ public class WeatherServiceHelper {
             		    	triggerReasons.addTriggerReason(
             		    			new TriggerReason(weatherForecastData.getDay(),
             		    					"High of " + weatherForecastData.getHighTempurature()
-            		    					+ "° exceeds " + highTriggerFloat + "°"));
+            		    					+ "&deg; exceeds " + highTriggerFloat + "&deg;"));
             			    sendWeatherMail = true;
             		    }
             		
@@ -624,7 +624,7 @@ public class WeatherServiceHelper {
     		    	triggerReasons.addTriggerReason(
         		    		new TriggerReason(weatherData.getDay(),
             		    			"Low of " + weatherData.getLowTempurature()
-            		    			+ "° below " + lowTriggerFloat + "°"));
+            		    			+ "&deg; below " + lowTriggerFloat + "&deg;"));
         			sendWeatherMail = true;
         		} else {
                     for (WeatherData weatherForecastData : weatherData.getForecast()) {
@@ -632,7 +632,7 @@ public class WeatherServiceHelper {
             		    	triggerReasons.addTriggerReason(
                 		    		new TriggerReason(weatherForecastData.getDay(),
                     		    			"Low of " + weatherForecastData.getLowTempurature()
-                    		    			+ "° below " + lowTriggerFloat + "°"));
+                    		    			+ "&deg; below " + lowTriggerFloat + "&deg;"));
             	    		sendWeatherMail = true;
             		    }
                     }
