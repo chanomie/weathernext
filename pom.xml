@@ -71,7 +71,7 @@
     <timestamp>${maven.build.timestamp}</timestamp>
     <maven.build.timestamp.format>yyyyMMdd.HHmm</maven.build.timestamp.format>
     <jackson.version>1.9.13</jackson.version>
-    <jackson-2-version>2.9.9.2</jackson-2-version>
+    <jackson-2-version>2.9.10.4</jackson-2-version>
   </properties>
   <dependencies>
     <!-- Compile/runtime dependencies -->
